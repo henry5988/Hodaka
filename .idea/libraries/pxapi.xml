@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="pxapi">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/pxapi.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
