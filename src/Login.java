@@ -37,6 +37,12 @@ public class Login {
             session = connect(args);
             // Get the current user name
             String userName = getCurrentUser();
+
+            //getting object
+            IItem item = (IItem) session.getObject(ItemConstants.CLASS_PART,"FG1-0000000001");
+            System.out.println(item.getName());
+            //print BOM
+            printBOM(item,1);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -44,6 +50,30 @@ public class Login {
         }
     }
 
+    private static void printBOM(IItem item, int level) throws APIException {
+        IRow     row;
+        String   bomNumber;
+        ITable   table = item.getTable(ItemConstants.TABLE_BOM);
+        Iterator it    = table.iterator();
+
+        while (it.hasNext()) {
+            row = (IRow)it.next();
+            indent(level);
+            bomNumber = (String)row.getValue(ItemConstants.ATT_BOM_ITEM_NUMBER);
+            System.out.println(bomNumber);
+            IItem bomItem = (IItem)row.getReferent();
+
+            printBOM(bomItem, level + 1);
+        }
+    }
+
+    private static void indent(int level) {
+        int    n = level * 2;
+        char[] c = new char[n];
+
+        Arrays.fill(c, ' ');
+        System.out.print(new String(c));
+    }
     /**
      * <p> Create an IAgileSession instance </p>
      * @param args command line arguments
