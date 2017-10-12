@@ -60,19 +60,27 @@ public class BOMLogicPX implements IEventAction {
             getBOM(bomItem, level + 1);*/
         }
     }
-
+    private static boolean checkEmpty(IRow row) throws APIException {
+        boolean toReturn;
+        /*[原料/副產品] bom list 01
+        [BOM單位] bom list 02
+        [比例型態 ] bom list 03*/
+        IAgileList value1 = (IAgileList)row.getValue(ItemConstants.ATT_BOM_BOM_LIST01);
+        IAgileList value2 = (IAgileList)row.getValue(ItemConstants.ATT_BOM_BOM_LIST02);
+        IAgileList value3 = (IAgileList)row.getValue(ItemConstants.ATT_BOM_BOM_LIST03);
+        toReturn = !value1.toString().equals("")&&!value2.toString().equals("")&&!value3.toString().equals("");
+        return toReturn;
+    }
+    private static boolean checkNonZero(IRow row) {
+        return false;
+    }
     private static boolean checkFindNum(IRow row) {
         return false;
     }
 
-    private static boolean checkNonZero(IRow row) {
-        return false;
-    }
 
-    private static boolean checkEmpty(IRow row) {
-        //TODO check if item has empty columns - do later
-        return false;
-    }
+
+
 
     private static boolean checkType(String bomNumber) {
         return bomNumber.charAt(0) =='2' || bomNumber.charAt(0) =='5';
