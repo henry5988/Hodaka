@@ -13,7 +13,6 @@ import java.util.Iterator;
  */
 public class BOMLogicPX implements IEventAction {
     public static LogIt logger = new LogIt();
-    public static String e = "過站失敗：";
     @Override
     public EventActionResult doAction(IAgileSession session, INode actionNode, IEventInfo event) {
         IWFChangeStatusEventInfo info = (IWFChangeStatusEventInfo) event;
@@ -33,14 +32,16 @@ public class BOMLogicPX implements IEventAction {
 
         } catch (APIException e) {
             e.printStackTrace();
+            return new EventActionResult(event, new ActionResult(ActionResult.STRING, "程式出錯"));
         }
-        return new EventActionResult(event, new ActionResult(ActionResult.STRING, e));
+        return new EventActionResult(event, new ActionResult(ActionResult.STRING, "meme"));
     }
     private static void getBOM(IItem item, int level) throws APIException {
         IRow     row;
         String   bomNumber;
         ITable   table = item.getTable(ItemConstants.TABLE_BOM);
         Iterator it    = table.iterator();
+        String e = "Error: ";
 
         while (it.hasNext()) {
             row = (IRow)it.next();
@@ -48,12 +49,21 @@ public class BOMLogicPX implements IEventAction {
             bomNumber = (String)row.getValue(ItemConstants.ATT_BOM_ITEM_NUMBER);
             //check if BOM contains only 原料 or 回收料
             if(!checkType(bomNumber)){
-                e += "組成的料件類型僅能為原料/回收料!";
+                e += "組成的料件類型僅能為原料/回收料!// ";
             }
-            checkEmpty(row);
-            checkNonZero(row);
-            checkFindNum(row);
+            //true if nonempty
+            if(!checkEmpty(row)){
+                e += "欄位不得為空!// ";
+            }
+            //true if zero
+            if(checkZero(row)){
+                e += "[BOM數量]欄位資訊不可為0!// ";
+            }
+            if(checkFindNum(row)){
+                e += "[Find Num]格式必須為四碼 ";
+            }
             logger.log(bomNumber);
+            logger.log(e);
 
             //If want to recursion - uncomment
             /*IItem bomItem = (IItem)row.getReferent();
@@ -71,16 +81,14 @@ public class BOMLogicPX implements IEventAction {
         toReturn = !value1.toString().equals("")&&!value2.toString().equals("")&&!value3.toString().equals("");
         return toReturn;
     }
-    private static boolean checkNonZero(IRow row) {
-        return false;
+    private static boolean checkZero(IRow row) throws APIException {
+        String quantity = (String)row.getValue(ItemConstants.ATT_BOM_QTY);
+        return quantity.equals("0") || quantity.equals("");
     }
-    private static boolean checkFindNum(IRow row) {
-        return false;
+    private static boolean checkFindNum(IRow row) throws APIException {
+        String findNum = (String)row.getValue(ItemConstants.ATT_BOM_FIND_NUM);
+        return findNum.length()!=4;
     }
-
-
-
-
 
     private static boolean checkType(String bomNumber) {
         return bomNumber.charAt(0) =='2' || bomNumber.charAt(0) =='5';
