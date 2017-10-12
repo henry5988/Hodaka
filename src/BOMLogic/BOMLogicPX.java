@@ -50,17 +50,28 @@ public class BOMLogicPX implements IEventAction {
             if(!checkType(bomNumber)){
                 e += "組成的料件類型僅能為原料/回收料!";
             }
-            
-            //TODO check if item has empty columns - do later
-            //TODO check if item has 0 column
-            //TODO check if findnum is 4 digits
-            //TODO contain at least one YWL and the amount is not 0
-            
+            checkEmpty(row);
+            checkNonZero(row);
+            checkFindNum(row);
             logger.log(bomNumber);
-            IItem bomItem = (IItem)row.getReferent();
 
-            getBOM(bomItem, level + 1);
+            //If want to recursion - uncomment
+            /*IItem bomItem = (IItem)row.getReferent();
+            getBOM(bomItem, level + 1);*/
         }
+    }
+
+    private static boolean checkFindNum(IRow row) {
+        return false;
+    }
+
+    private static boolean checkNonZero(IRow row) {
+        return false;
+    }
+
+    private static boolean checkEmpty(IRow row) {
+        //TODO check if item has empty columns - do later
+        return false;
     }
 
     private static boolean checkType(String bomNumber) {
