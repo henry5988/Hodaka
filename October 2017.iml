@@ -9,5 +9,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="AgileAPI" level="project" />
     <orderEntry type="library" name="pxapi" level="project" />
+    <orderEntry type="library" name="anselm" level="project" />
   </component>
 </module>

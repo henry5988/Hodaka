@@ -39,7 +39,7 @@ public class Login {
             String userName = getCurrentUser();
 
             //getting object
-            IItem item = (IItem) session.getObject(ItemConstants.CLASS_PART,"FG1-0000000001");
+            IItem item = (IItem) session.getObject(ItemConstants.CLASS_PART,"FG1-0000000002");
             System.out.println(item.getName());
             //print BOM
             printBOM(item,1);
@@ -49,7 +49,27 @@ public class Login {
             session.close();
         }
     }
+    void checkStatus(IChange change) {
 
+        try {
+            // Get current workflow status (an INode object)
+            IStatus status = change.getStatus();
+            System.out.println("Status name = " + status.getName());
+
+            // Get next available workflow statuses
+            IStatus[] nextStatuses = change.getNextStatuses();
+            for (int i = 0; i < nextStatuses.length; i++)  {
+                System.out.println("nextStatuses[" + i +"] = " +
+                        nextStatuses[i].getName());
+            }
+            // Get next default workflow status
+            IStatus nextDefStatus = change.getDefaultNextStatus();
+            System.out.println("Next default status = " + nextDefStatus.getName());
+
+        } catch (APIException ex) {
+            System.out.println(ex);
+        }
+    }
     private static void printBOM(IItem item, int level) throws APIException {
         IRow     row;
         String   bomNumber;
@@ -61,6 +81,17 @@ public class Login {
             indent(level);
             bomNumber = (String)row.getValue(ItemConstants.ATT_BOM_ITEM_NUMBER);
             System.out.println(bomNumber);
+
+            // Get the current value of the Visible property
+            IAgileList value = (IAgileList)row.getValue(ItemConstants.ATT_BOM_BOM_LIST01);
+            // Print the current value
+            System.out.println(value);
+
+            boolean aaa = value.toString().equals("");
+            System.out.println(aaa);
+
+
+
             IItem bomItem = (IItem)row.getReferent();
 
             printBOM(bomItem, level + 1);
