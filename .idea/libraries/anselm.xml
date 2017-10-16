@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="anselm">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/anselm.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
