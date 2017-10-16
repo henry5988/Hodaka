@@ -13,6 +13,7 @@ import java.util.Iterator;
  */
 public class BOMLogicPX implements IEventAction {
     public static LogIt logger = new LogIt();
+    public static boolean problem = false;
     @Override
     public EventActionResult doAction(IAgileSession session, INode actionNode, IEventInfo event) {
         IWFChangeStatusEventInfo info = (IWFChangeStatusEventInfo) event;
@@ -30,14 +31,16 @@ public class BOMLogicPX implements IEventAction {
                 getBOM(item, 1);
 
             }
-            //resetStatus(changeOrder,session.getCurrentUser());
-
+            if (problem) {
+                resetStatus(changeOrder, session.getCurrentUser());
+            }
         } catch (APIException e) {
             e.printStackTrace();
+            logger.log("error");
             return new EventActionResult(event, new ActionResult(ActionResult.STRING, "程式出錯"));
         }
 
-        return new EventActionResult(event, new ActionResult(ActionResult.STRING, "meme"));
+        return new EventActionResult(event, new ActionResult());
     }
 
     //Checking the privileges of a user before changing the status of a change
@@ -47,9 +50,9 @@ public class BOMLogicPX implements IEventAction {
         // Check if the user can change status
         if(user.hasPrivilege(UserConstants.PRIV_CHANGESTATUS, change)) {
             IStatus nextStatus = change.getWorkflow().getStates()[0];
-            change.changeStatus(nextStatus, true, "", true, true, null, null, null, false);
+            change.changeStatus(nextStatus, false, "", false, false, null, null, null, false);
         } else {
-            System.out.println("Insufficient privileges to change status.");
+            logger.log("Insufficient privileges to change status.");
         }
     }
     private static void getBOM(IItem item, int level) throws APIException {
@@ -64,7 +67,7 @@ public class BOMLogicPX implements IEventAction {
             row = (IRow)it.next();
             indent(level);
             bomNumber = (String)row.getValue(ItemConstants.ATT_BOM_ITEM_NUMBER);
-            String e = "Error for BOM "+bomNumber;
+            String e = "Error for BOM "+bomNumber+" :";
             logger.log("Checking "+bomNumber+"...");
             //check if BOM contains only 原料 or 回收料
             if(!checkType(bomNumber)){
@@ -85,11 +88,13 @@ public class BOMLogicPX implements IEventAction {
                 error=true;
                 e += "[Find Num]格式必須為四碼 ";
             }
-            if (error)
-                logger.log(e);
-            else
-                logger.log("...OK");
-
+            if (error){
+                problem=true;
+                indent(level);logger.log(e);
+            }
+            else {
+                indent(level);logger.log("...OK");
+            }
             //If want to recursion - uncomment
             /*IItem bomItem = (IItem)row.getReferent();
             getBOM(bomItem, level + 1);*/
@@ -115,7 +120,7 @@ public class BOMLogicPX implements IEventAction {
         return findNum.length()!=4;
     }
     private static boolean checkType(String bomNumber) {
-        return bomNumber.charAt(0) =='2' || bomNumber.charAt(0) =='5';
+        return bomNumber.charAt(0) =='2' || bomNumber.charAt(0) =='5' ||bomNumber.charAt(0) =='Y' ||bomNumber.charAt(0) =='H';
     }
     private static void indent(int level) {
         int    n = level * 2;
