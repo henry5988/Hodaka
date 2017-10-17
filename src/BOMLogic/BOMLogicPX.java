@@ -17,12 +17,13 @@ public class BOMLogicPX implements IEventAction {
     private static boolean problem;
     @Override
     public EventActionResult doAction(IAgileSession session, INode actionNode, IEventInfo event) {
-        logger = new LogIt("BOMLogic");
+
         try {
             logger.setLogFile("C:/Agile/BomLogic/",true);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        logger = new LogIt("BOMLogic");
         problem = false;
         IWFChangeStatusEventInfo info = (IWFChangeStatusEventInfo) event;
         try {
