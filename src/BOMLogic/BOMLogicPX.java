@@ -4,6 +4,7 @@ import com.agile.api.*;
 import com.agile.px.*;
 import com.anselm.plm.utilobj.LogIt;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -12,24 +13,34 @@ import java.util.Iterator;
  * Created by William Huang on 10/11/2017.
  */
 public class BOMLogicPX implements IEventAction {
-    public static LogIt logger = new LogIt();
-    public static boolean problem = false;
+    public static LogIt logger;
+    private static boolean problem;
     @Override
     public EventActionResult doAction(IAgileSession session, INode actionNode, IEventInfo event) {
+        logger = new LogIt("BOMLogic");
+        try {
+            logger.setLogFile("C:/Agile/BomLogic/",true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        problem = false;
         IWFChangeStatusEventInfo info = (IWFChangeStatusEventInfo) event;
         try {
             IChange changeOrder = (IChange) info.getDataObject();
 
-            logger.log("GetChange:" + changeOrder.getName());
+            logger.log("GetChange: " + changeOrder.getName());
             ITable affTab = changeOrder.getTable(ChangeConstants.TABLE_AFFECTEDITEMS);
-            logger.log("GetTable:" + affTab.getName());
+            logger.log("GetTable: " + affTab.getName());
             Iterator it = affTab.iterator();
+            if(!it.hasNext()){
+                logger.log("Affected Table is empty. 需要至少一筆原料");
+                problem = true;
+            }
             while (it.hasNext()) {
                 IRow row = (IRow) it.next();
                 IItem item = (IItem) row.getReferent();
                 logger.log(item.getName());
                 getBOM(item, 1);
-
             }
             if (problem) {
                 resetStatus(changeOrder, session.getCurrentUser());
@@ -37,9 +48,10 @@ public class BOMLogicPX implements IEventAction {
         } catch (APIException e) {
             e.printStackTrace();
             logger.log("error");
+            logger.close();
             return new EventActionResult(event, new ActionResult(ActionResult.STRING, "程式出錯"));
         }
-
+        logger.close();
         return new EventActionResult(event, new ActionResult());
     }
 
@@ -60,9 +72,13 @@ public class BOMLogicPX implements IEventAction {
         String   bomNumber;
         ITable   table = item.getTable(ItemConstants.TABLE_BOM);
         Iterator it    = table.iterator();
+        Iterator it2   = table.iterator();
         boolean error = false;
 
-
+        if(!checkOrig(it2)){
+            problem=true;
+            logger.log("Affected Item需至少包含一筆原料，且數量不得為0!");
+        }
         while (it.hasNext()) {
             row = (IRow)it.next();
             indent(level);
@@ -100,6 +116,22 @@ public class BOMLogicPX implements IEventAction {
             getBOM(bomItem, level + 1);*/
         }
     }
+
+    private static boolean checkOrig(Iterator it) throws APIException {
+        IRow     row;
+        String   bomNumber;
+        String quantity;
+        while(it.hasNext()){
+            row = (IRow)it.next();
+            bomNumber = (String)row.getValue(ItemConstants.ATT_BOM_ITEM_NUMBER);
+            quantity = (String)row.getValue(ItemConstants.ATT_BOM_QTY);
+            if(bomNumber.charAt(0) =='Y'){
+                return !quantity.equals("0");
+            }
+        }
+        return false;
+    }
+
     private static boolean checkEmpty(IRow row) throws APIException {
         boolean toReturn;
         /*[原料/副產品] bom list 01
