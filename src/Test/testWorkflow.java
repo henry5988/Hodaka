@@ -75,10 +75,8 @@ public class testWorkflow extends ServerInfo {
                 1);
         session.enableWarning(new Integer(568));
     }
+    //自動過站
     private static void releaseChange(IChange change) throws APIException {
-        IWorkflow workflow = change.getWorkflows()[1];
-        //IStatus review     = getStatus(workflow, StatusConstants.TYPE_REVIEW);
-        //IStatus released   = getStatus(workflow, StatusConstants.TYPE_RELEASED);
         change.changeStatus(change.getDefaultNextStatus(), false, null, false, false, null, null, null, false);
         session.disableWarning(new Integer(506));
         session.disableWarning(new Integer(344));
@@ -86,10 +84,5 @@ public class testWorkflow extends ServerInfo {
         session.enableWarning(new Integer(506));
         session.enableWarning(new Integer(344));
     }
-    private static IStatus getStatus(IWorkflow wf, StatusConstants status)
-            throws APIException {
-        IStatus[] states = wf.getStates(status);
-        IStatus   state  = states[0];
-        return state;
-    }
+
 }
