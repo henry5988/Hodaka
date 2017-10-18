@@ -1,4 +1,4 @@
-// =======================================================================================================================================
+package Test;// =======================================================================================================================================
 // Copyright © 2017, Oracle and/or its affiliates. All rights reserved.
 //
 // This software and related documentation are provided under a license agreement containing restrictions on use and disclosure and are protected by intellectual
@@ -14,7 +14,7 @@
 
 /**
  * This sample demonstrates:
- * 1. Login to Agile server;
+ * 1. Test.Login to Agile server;
  * 2. Get the logged in user name from server.
  */
 import com.agile.api.*;
@@ -24,8 +24,7 @@ import java.util.*;
 
 
 public class Login {
-    private static final String COMMAND_NAME = "Login";
-
+    private static final String COMMAND_NAME = "Test.Login";
     public static IAgileSession       session  = null;
     public static AgileSessionFactory factory;
 
