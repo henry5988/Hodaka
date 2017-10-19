@@ -1,9 +1,6 @@
 package Test;
 
-import com.agile.api.APIException;
-import com.agile.api.AgileSessionFactory;
-import com.agile.api.IAgileSession;
-import com.agile.api.IUser;
+import com.agile.api.*;
 
 import java.util.HashMap;
 
@@ -43,5 +40,19 @@ public class ServerInfo {
         System.out.println("Logged in user: " + userName);
         return userName;
     }
+    public static IChange getChange(IAgileSession session, String itemNum) throws APIException{
+        IChange change;
+        change = (IChange) session.getObject(ChangeConstants.CLASS_CHANGE_BASE_CLASS,itemNum);
+        System.out.println(change.getName());
+        return change;
+    }
+
+    public static ITable getAffTab(IChange change) throws APIException{
+        ITable table;
+        table = change.getTable(ChangeConstants.TABLE_AFFECTEDITEMS);
+        System.out.println("Size of aff table: "+table.size());
+        return table;
+    }
+
 
 }
