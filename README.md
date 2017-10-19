@@ -1,5 +1,8 @@
 # Hodaka
-First assignment back at Anselm Inc.
+First assignment back in Anselm Inc.
+
+Program One:
+BOMLogic.java
 
 | No        | Rule          | Type  |
 | :-------------: |:-------------| :-----:|
@@ -10,3 +13,8 @@ First assignment back at Anselm Inc.
 | 5 | 每筆組成的[BOM數量]欄位資訊不可為0      | 穗高配方維護作業規範 |
 | 6 | 每筆組成的[Find Num]格式必須為四碼(ex. 0010, 0020, 0100…)| 穗高配方維護作業規範 |
 | 7 | 至少包含一筆原料，且數量不得為0	      | EBS整合需求 |
+
+Program Two:
+AutoAddBOM
+透過變更單自動將配方料號放至成品料號BOM頁籤中並發行
+配方建置流程簽核完成後，自動依據配方上所註記的成品號碼，將配方加入至成品的BOM頁籤中。
