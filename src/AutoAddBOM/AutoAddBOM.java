@@ -51,14 +51,14 @@ public class AutoAddBOM implements IEventAction{
         return change;
     }
     /*
-     * item1: 成品
-     * item2: 配方
+     * full: 成品
+     * part: 配方
      */
     private static void addAffectedItems(IItem full, IItem part) throws APIException {
         ITable affectedItems   = autoChange.getTable(ChangeConstants.TABLE_AFFECTEDITEMS);
-        session.disableWarning(new Integer(568));
-        addRedlineBOM(full, part);
         IRow   affectedItemRow = affectedItems.createRow(full);
+        addRedlineBOM(full, part);
+        session.disableWarning(new Integer(568));
         autoRev(affectedItemRow);
         session.enableWarning(new Integer(568));
     }
