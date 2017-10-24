@@ -124,7 +124,7 @@ public class BOMLogicPX implements IEventAction {
             row = (IRow)it.next();
             bomNumber = (String)row.getValue(ItemConstants.ATT_BOM_ITEM_NUMBER);
             quantity = (String)row.getValue(ItemConstants.ATT_BOM_QTY);
-            if(bomNumber.charAt(0) =='Y'){
+            if(bomNumber.charAt(0) =='2'){
                 return !quantity.equals("0");
             }
         }
@@ -151,7 +151,7 @@ public class BOMLogicPX implements IEventAction {
         return findNum.length()!=4;
     }
     private static boolean checkType(String bomNumber) {
-        return bomNumber.charAt(0) =='2' || bomNumber.charAt(0) =='5' ||bomNumber.charAt(0) =='Y' ||bomNumber.charAt(0) =='H';
+        return bomNumber.charAt(0) =='2' || bomNumber.charAt(0) =='5';
     }
 }
 
