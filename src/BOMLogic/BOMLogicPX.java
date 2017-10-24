@@ -4,7 +4,6 @@ import com.agile.api.*;
 import com.agile.px.*;
 import com.anselm.plm.utilobj.LogIt;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -13,17 +12,17 @@ import java.util.Iterator;
  * Created by William Huang on 10/11/2017.
  */
 public class BOMLogicPX implements IEventAction {
-    public static LogIt logger;
+    private static LogIt logger;
     private static boolean problem;
     @Override
     public EventActionResult doAction(IAgileSession session, INode actionNode, IEventInfo event) {
-
         try {
-            logger.setLogFile("C:/Agile/BomLogic/",true);
-        } catch (IOException e) {
+            logger = new LogIt("BOMLogic");
+            logger.setLogFile("C:/Agile/BomLogic.log");
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        logger = new LogIt("BOMLogic");
+
         problem = false;
         IWFChangeStatusEventInfo info = (IWFChangeStatusEventInfo) event;
         try {
@@ -50,10 +49,10 @@ public class BOMLogicPX implements IEventAction {
             e.printStackTrace();
             logger.log("error");
             logger.close();
-            return new EventActionResult(event, new ActionResult(ActionResult.STRING, "程式出錯"));
+            return new EventActionResult(event, new ActionResult(ActionResult.STRING, "程式出錯,請至C:/Agile/BOMLogic.log確認錯誤訊息!"));
         }
         logger.close();
-        return new EventActionResult(event, new ActionResult());
+        return new EventActionResult(event, new ActionResult(ActionResult.STRING, "成功"));
     }
 
     //Checking the privileges of a user before changing the status of a change
@@ -82,10 +81,9 @@ public class BOMLogicPX implements IEventAction {
         }
         while (it.hasNext()) {
             row = (IRow)it.next();
-            indent(level);
             bomNumber = (String)row.getValue(ItemConstants.ATT_BOM_ITEM_NUMBER);
             String e = "Error for BOM "+bomNumber+" :";
-            logger.log("Checking "+bomNumber+"...");
+            logger.log(1,"Checking "+bomNumber+"...");
             //check if BOM contains only 原料 or 回收料
             if(!checkType(bomNumber)){
                 error=true;
@@ -107,10 +105,10 @@ public class BOMLogicPX implements IEventAction {
             }
             if (error){
                 problem=true;
-                indent(level);logger.log(e);
+                logger.log(1,e);
             }
             else {
-                indent(level);logger.log("...OK");
+                logger.log(1,"...OK");
             }
             //If want to recursion - uncomment
             /*IItem bomItem = (IItem)row.getReferent();
@@ -154,13 +152,6 @@ public class BOMLogicPX implements IEventAction {
     }
     private static boolean checkType(String bomNumber) {
         return bomNumber.charAt(0) =='2' || bomNumber.charAt(0) =='5' ||bomNumber.charAt(0) =='Y' ||bomNumber.charAt(0) =='H';
-    }
-    private static void indent(int level) {
-        int    n = level * 2;
-        char[] c = new char[n];
-
-        Arrays.fill(c, ' ');
-        System.out.print(new String(c));
     }
 }
 
