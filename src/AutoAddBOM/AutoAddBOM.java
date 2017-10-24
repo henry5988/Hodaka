@@ -5,6 +5,8 @@ import com.agile.px.EventActionResult;
 import com.agile.px.IEventAction;
 import com.agile.px.IEventInfo;
 import com.agile.px.IWFChangeStatusEventInfo;
+
+import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
@@ -13,6 +15,7 @@ import java.util.Iterator;
 public class AutoAddBOM implements IEventAction{
     public static IAgileSession session;
     private static IChange autoChange;
+    private static ArrayList<IItem> list;
 
     @Override
     public EventActionResult doAction(IAgileSession session, INode actionNode, IEventInfo event) {
@@ -24,9 +27,11 @@ public class AutoAddBOM implements IEventAction{
 
             Iterator it = affectedTable.iterator();
             autoChange = createChange();
+            list = new ArrayList<IItem>();
             while(it.hasNext()){
                 IRow row = (IRow) it.next();
                 IItem part = (IItem) row.getReferent();
+                //Assuming PageThree.List02 is a list of IItem.
                 String val = part.getValue(ItemConstants.ATT_PAGE_THREE_LIST02).toString();
                 IItem full = (IItem) session.getObject(ItemConstants.CLASS_PART,val);
                 addAffectedItems(full,part);
@@ -41,14 +46,15 @@ public class AutoAddBOM implements IEventAction{
     }
     /*
      * Create a New Change Order and Set Workflow.
-     * TODO: Need to grab the right change class + right workflow
      */
     private static IChange createChange() throws APIException {
-        IAgileClass objClass = session.getAdminInstance().getAgileClass(
-                ChangeConstants.CLASS_ECO);
-        IAutoNumber autoNumber = objClass.getAutoNumberSources()[2];
-        IChange change = (IChange)session.getObject(ChangeConstants.CLASS_ECO, autoNumber);
-        change.setWorkflow(change.getWorkflows()[1]);
+        //Get Change Class and Autonumber
+        IAgileClass objClass = session.getAdminInstance().getAgileClass("M01-自動加入配方(客製程式使用)申請單");
+        //This assumes that only one autonumber option is available.
+        IAutoNumber autoNumber = objClass.getAutoNumberSources()[0];
+        IChange change = (IChange)session.createObject("M01-自動加入配方(客製程式使用)申請單", autoNumber);
+        //This assumes that only one workflow is available
+        change.setWorkflow(change.getWorkflows()[0]);
         return change;
     }
     /*
@@ -57,7 +63,20 @@ public class AutoAddBOM implements IEventAction{
      */
     private static void addAffectedItems(IItem full, IItem part) throws APIException {
         ITable affectedItems   = autoChange.getTable(ChangeConstants.TABLE_AFFECTEDITEMS);
-        IRow   affectedItemRow = affectedItems.createRow(full);
+        IRow affectedItemRow   = null;
+        if(list.contains(full)){
+            Iterator it = affectedItems.iterator();
+            while(it.hasNext()){
+                IRow row = (IRow) it.next();
+                IItem item = (IItem) row.getReferent();
+                if(item.equals(full)){
+                    affectedItemRow = row;
+                    break;
+                }
+            }
+        }else{
+            affectedItemRow = affectedItems.createRow(full);
+        }
         addRedlineBOM(full, part);
         session.disableWarning(new Integer(568));
         autoRev(affectedItemRow);
