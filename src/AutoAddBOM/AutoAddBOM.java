@@ -13,6 +13,7 @@ import java.util.Iterator;
 public class AutoAddBOM implements IEventAction{
     public static IAgileSession session;
     private static IChange autoChange;
+
     @Override
     public EventActionResult doAction(IAgileSession session, INode actionNode, IEventInfo event) {
         IWFChangeStatusEventInfo info = (IWFChangeStatusEventInfo) event;
@@ -70,7 +71,7 @@ public class AutoAddBOM implements IEventAction{
 
     private static void autoRev(IRow affectedItemRow) throws APIException {
         String oldRev = (String) affectedItemRow.getValue(ChangeConstants.ATT_AFFECTED_ITEMS_OLD_REV);
-        if(oldRev==null)
+        if(oldRev=="")
             affectedItemRow.setValue(ChangeConstants.ATT_AFFECTED_ITEMS_NEW_REV,1);
         else
             affectedItemRow.setValue(ChangeConstants.ATT_AFFECTED_ITEMS_NEW_REV,Integer.parseInt(oldRev)+1);
