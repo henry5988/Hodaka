@@ -2,7 +2,9 @@ package AutoRev;
 
 import com.agile.api.*;
 import com.agile.px.*;
-import com.anselm.plm.utilobj.LogIt;
+import william.util.LogIt;
+
+import java.io.File;
 import java.util.Iterator;
 
 /**
@@ -11,13 +13,14 @@ import java.util.Iterator;
 public class AutoRevForPartsFormula implements IEventAction {
     public static IAgileSession session;
     private static LogIt logger;
+    private final String FILE_PATH = "C:/Agile/AutoRevForPartsFormula.txt";
     @Override
     public EventActionResult doAction(IAgileSession session, INode actionNode, IEventInfo event) {
         IWFChangeStatusEventInfo info = (IWFChangeStatusEventInfo) event;
         this.session = session;
         try {
             logger = new LogIt("AutoRevForPartsFormula");
-            logger.setLogFile("C:/Agile/AutoRevForPartsFormula.log");
+            logger.setLogFile(FILE_PATH);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -31,6 +34,10 @@ public class AutoRevForPartsFormula implements IEventAction {
                 IRow row = (IRow) it.next();
                 autoRev(row);
             }
+            logger.close();
+            ITable attachment = changeOrder.getAttachments();
+            attachment.createRow(FILE_PATH);
+            new File(FILE_PATH).delete();
         } catch (APIException e) {
             e.printStackTrace();
         }

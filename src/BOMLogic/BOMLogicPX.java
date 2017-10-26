@@ -2,10 +2,11 @@ package BOMLogic;
 
 import com.agile.api.*;
 import com.agile.px.*;
-import com.anselm.plm.utilobj.LogIt;
+import william.util.LogIt;
 
-import java.util.Arrays;
+import java.io.File;
 import java.util.Iterator;
+
 
 
 /**
@@ -14,18 +15,22 @@ import java.util.Iterator;
 public class BOMLogicPX implements IEventAction {
     private static LogIt logger;
     private static boolean problem;
+    private final String FILE_PATH = "C:/Agile/BomLogic.txt";
+    private IAgileSession admin;
     @Override
     public EventActionResult doAction(IAgileSession session, INode actionNode, IEventInfo event) {
         try {
             logger = new LogIt("BOMLogic");
-            logger.setLogFile("C:/Agile/BomLogic.log");
+            logger.setLogFile(FILE_PATH);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         problem = false;
         IWFChangeStatusEventInfo info = (IWFChangeStatusEventInfo) event;
+
         try {
+            //admin = session.getAdminInstance();
             IChange changeOrder = (IChange) info.getDataObject();
 
             logger.log("GetChange: " + changeOrder.getName());
@@ -44,15 +49,23 @@ public class BOMLogicPX implements IEventAction {
             }
             if (problem) {
                 resetStatus(changeOrder, session.getCurrentUser());
+                logger.close();
+                ITable attachment = changeOrder.getAttachments();
+                attachment.createRow(FILE_PATH);
+                new File(FILE_PATH).delete();
+                return new EventActionResult(event, new ActionResult(ActionResult.STRING, "過站失敗，請讀取attachment的log檔"));
             }
+            else{
+                logger.close();
+                return new EventActionResult(event, new ActionResult(ActionResult.STRING,"成功"));
+            }
+
         } catch (APIException e) {
             e.printStackTrace();
-            logger.log("error");
             logger.close();
-            return new EventActionResult(event, new ActionResult(ActionResult.STRING, "程式出錯,請至C:/Agile/BOMLogic.log確認錯誤訊息!"));
+            return new EventActionResult(event, new ActionResult(ActionResult.STRING, "程式出錯"));
         }
-        logger.close();
-        return new EventActionResult(event, new ActionResult(ActionResult.STRING, "成功"));
+
     }
 
     //Checking the privileges of a user before changing the status of a change
