@@ -2,6 +2,8 @@ package BOMLogic;
 
 import com.agile.api.*;
 import com.agile.px.*;
+import com.anselm.plm.util.AUtil;
+import com.anselm.plm.utilobj.Ini;
 import william.util.LogIt;
 
 import java.io.File;
@@ -16,12 +18,15 @@ public class BOMLogicPX implements IEventAction {
     private static LogIt logger;
     private static boolean problem;
     private final String FILE_PATH = "C:/Agile/BomLogic.txt";
+    private final String INI_FILE_PATH = "C:/Agile/Config.ini";
     private IAgileSession admin;
     @Override
     public EventActionResult doAction(IAgileSession session, INode actionNode, IEventInfo event) {
         try {
             logger = new LogIt("BOMLogic");
             logger.setLogFile(FILE_PATH);
+            Ini ini = new Ini(INI_FILE_PATH);
+            admin = AUtil.getAgileSession(ini, "AgileAP");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -30,7 +35,6 @@ public class BOMLogicPX implements IEventAction {
         IWFChangeStatusEventInfo info = (IWFChangeStatusEventInfo) event;
 
         try {
-            //admin = session.getAdminInstance();
             IChange changeOrder = (IChange) info.getDataObject();
 
             logger.log("GetChange: " + changeOrder.getName());
@@ -38,7 +42,8 @@ public class BOMLogicPX implements IEventAction {
             logger.log("GetTable: " + affTab.getName());
             Iterator it = affTab.iterator();
             if(!it.hasNext()){
-                logger.log("Affected Table is empty. 需要至少一筆原料");
+                //應該會被criteria鎖住所以其實不會出現這個情況
+                logger.log("Affected Table is empty. 需要至少一筆配方");
                 problem = true;
             }
             while (it.hasNext()) {
@@ -48,7 +53,7 @@ public class BOMLogicPX implements IEventAction {
                 getBOM(item, 1);
             }
             if (problem) {
-                resetStatus(changeOrder, session.getCurrentUser());
+                resetStatus(changeOrder, admin.getCurrentUser());
                 logger.close();
                 ITable attachment = changeOrder.getAttachments();
                 attachment.createRow(FILE_PATH);
@@ -57,22 +62,22 @@ public class BOMLogicPX implements IEventAction {
             }
             else{
                 logger.close();
+                new File(FILE_PATH).delete();
                 return new EventActionResult(event, new ActionResult(ActionResult.STRING,"成功"));
             }
 
         } catch (APIException e) {
             e.printStackTrace();
             logger.close();
+            new File(FILE_PATH).delete();
             return new EventActionResult(event, new ActionResult(ActionResult.STRING, "程式出錯"));
         }
 
     }
-
-    //Checking the privileges of a user before changing the status of a change
     private void resetStatus(IChange change, IUser user)
             throws APIException {
 
-        // Check if the user can change status
+        // Check if the user can change status - 以admin的身份應該不會有問題的。
         if(user.hasPrivilege(UserConstants.PRIV_CHANGESTATUS, change)) {
             IStatus nextStatus = change.getWorkflow().getStates()[0];
             change.changeStatus(nextStatus, false, "", false, false, null, null, null, false);
@@ -83,7 +88,7 @@ public class BOMLogicPX implements IEventAction {
     private static void getBOM(IItem item, int level) throws APIException {
         IRow     row;
         String   bomNumber;
-        ITable   table = item.getTable(ItemConstants.TABLE_BOM);
+        ITable   table = item.getTable(ItemConstants.TABLE_REDLINEBOM);
         Iterator it    = table.iterator();
         Iterator it2   = table.iterator();
         boolean error = false;
@@ -105,7 +110,7 @@ public class BOMLogicPX implements IEventAction {
             //true if nonempty
             if(!checkEmpty(row)){
                 error=true;
-                e += "欄位不得為空!// ";
+                e += "[原料副產品][BOM單位][比例形態]欄位皆不得為空!// ";
             }
             //true if zero
             if(checkZero(row)){
@@ -118,17 +123,16 @@ public class BOMLogicPX implements IEventAction {
             }
             if (error){
                 problem=true;
-                logger.log(1,e);
+                logger.log(level,e);
             }
             else {
-                logger.log(1,"...OK");
+                logger.log(level,"...OK");
             }
-            //If want to recursion - uncomment
+            //If want recursion - uncomment
             /*IItem bomItem = (IItem)row.getReferent();
             getBOM(bomItem, level + 1);*/
         }
     }
-
     private static boolean checkOrig(Iterator it) throws APIException {
         IRow     row;
         String   bomNumber;
@@ -143,7 +147,6 @@ public class BOMLogicPX implements IEventAction {
         }
         return false;
     }
-
     private static boolean checkEmpty(IRow row) throws APIException {
         boolean toReturn;
         /*[原料/副產品] bom list 01
@@ -164,6 +167,7 @@ public class BOMLogicPX implements IEventAction {
         return findNum.length()!=4;
     }
     private static boolean checkType(String bomNumber) {
+        //2 是原物料 5 是回收料
         return bomNumber.charAt(0) =='2' || bomNumber.charAt(0) =='5';
     }
 }
