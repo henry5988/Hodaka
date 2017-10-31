@@ -79,10 +79,10 @@ public class AutoAddBOM implements IEventAction{
      */
     private static IChange createChange() throws APIException {
         //Get Change Class and Autonumber
-        IAgileClass objClass = admin.getAdminInstance().getAgileClass("M01-自動加入配方(客製程式使用)申請單");
+        IAgileClass objClass = admin.getAdminInstance().getAgileClass("C32-自動加入配方(客製程式使用)申請單");
         //This assumes that only one autonumber option is available.
         IAutoNumber autoNumber = objClass.getAutoNumberSources()[0];
-        IChange change = (IChange)admin.createObject("M01-自動加入配方(客製程式使用)申請單", autoNumber);
+        IChange change = (IChange)admin.createObject("C32-自動加入配方(客製程式使用)申請單", autoNumber);
         //This assumes that only one workflow is available
         change.setWorkflow(change.getWorkflows()[0]);
         return change;
