@@ -60,6 +60,7 @@ public class AutoAddBOM implements IEventAction {
             logger.log("發行自動表單...");
             releaseChange();
             logger.close();
+            new File(FILE_PATH).delete();
             return new EventActionResult(event, new ActionResult(ActionResult.STRING, "程式進行成功"));
 
         } catch (APIException e) {
@@ -72,9 +73,7 @@ public class AutoAddBOM implements IEventAction {
             } catch (APIException e2) {
                 e.printStackTrace();
             }
-            System.out.println("lel");
             e.printStackTrace();
-            System.out.println("heh");
             return new EventActionResult(event, new ActionResult(ActionResult.STRING, "程式運行失敗"));
 
         }

@@ -39,6 +39,7 @@ public class AutoRevForPartsFormula implements IEventAction {
             attachment.createRow(FILE_PATH);
             new File(FILE_PATH).delete();
         } catch (APIException e) {
+            logger.close();
             e.printStackTrace();
         }
         return new EventActionResult(event, new ActionResult(ActionResult.STRING, "成功"));
