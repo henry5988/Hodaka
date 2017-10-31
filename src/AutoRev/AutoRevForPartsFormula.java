@@ -14,6 +14,7 @@ public class AutoRevForPartsFormula implements IEventAction {
     public static IAgileSession session;
     private static LogIt logger;
     private final String FILE_PATH = "C:/Agile/AutoRevForPartsFormula.txt";
+    private static IChange changeOrder;
     @Override
     public EventActionResult doAction(IAgileSession session, INode actionNode, IEventInfo event) {
         IWFChangeStatusEventInfo info = (IWFChangeStatusEventInfo) event;
@@ -26,7 +27,7 @@ public class AutoRevForPartsFormula implements IEventAction {
         }
 
         try {
-            IChange changeOrder = (IChange) info.getDataObject();
+            changeOrder = (IChange) info.getDataObject();
             logger.log("Change Order = "+changeOrder.toString());
             ITable affectedTable = changeOrder.getTable(ChangeConstants.TABLE_AFFECTEDITEMS);
             Iterator it = affectedTable.iterator();
@@ -35,12 +36,18 @@ public class AutoRevForPartsFormula implements IEventAction {
                 autoRev(row);
             }
             logger.close();
-            ITable attachment = changeOrder.getAttachments();
-            attachment.createRow(FILE_PATH);
-            new File(FILE_PATH).delete();
+
         } catch (APIException e) {
             logger.close();
+            try{
+                ITable attachment = changeOrder.getAttachments();
+                attachment.createRow(FILE_PATH);
+                new File(FILE_PATH).delete();
+            }catch(APIException e2){
+                e.printStackTrace();
+            }
             e.printStackTrace();
+            return new EventActionResult(event, new ActionResult(ActionResult.STRING, "失敗"));
         }
         return new EventActionResult(event, new ActionResult(ActionResult.STRING, "成功"));
     }

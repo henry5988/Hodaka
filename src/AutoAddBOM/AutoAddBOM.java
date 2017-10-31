@@ -51,7 +51,6 @@ public class AutoAddBOM implements IEventAction {
                 IItem part = (IItem) row.getReferent();
                 logger.log("受影響的料號: " + part.getName());
                 //Assuming PageThree.List02 is a list of IItem.
-
                 String val = part.getValue(ItemConstants.ATT_PAGE_THREE_LIST02).toString();
                 IItem full = (IItem) session.getObject(ItemConstants.CLASS_PART, val);
                 logger.log(1, "對應的成品號碼: " + full.getName());
@@ -149,7 +148,6 @@ public class AutoAddBOM implements IEventAction {
      * Assumes two status. One Pending, One Release
      */
     private static void releaseChange() throws APIException {
-        //autoChange.changeStatus(autoChange.getDefaultNextStatus(), false, null, false, false, null, null, null, false);
 //        admin.disableWarning(new Integer(506));
 //        admin.disableWarning(new Integer(344));
         autoChange.changeStatus(autoChange.getDefaultNextStatus(), false, null, false, false, null, null, null, false);
