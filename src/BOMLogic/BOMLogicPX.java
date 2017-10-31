@@ -95,12 +95,12 @@ public class BOMLogicPX implements IEventAction {
 
         if(!checkOrig(it2)){
             problem=true;
-            logger.log("Affected Item需至少包含一筆原料，且數量不得為0!");
+            logger.log(1,"需至少包含一筆原料，且數量不得為0!");
         }
         while (it.hasNext()) {
             row = (IRow)it.next();
             bomNumber = (String)row.getValue(ItemConstants.ATT_BOM_ITEM_NUMBER);
-            String e = "Error for BOM "+bomNumber+" :";
+            String e = "Error for 半成品 "+bomNumber+" :";
             logger.log(1,"Checking "+bomNumber+"...");
             //check if BOM contains only 原料 or 回收料
             if(!checkType(bomNumber)){
@@ -110,7 +110,7 @@ public class BOMLogicPX implements IEventAction {
             //true if nonempty
             if(!checkEmpty(row)){
                 error=true;
-                e += "[原料副產品][BOM單位][比例形態]欄位皆不得為空!// ";
+                e += errEmptyBOMUnit(row)+errEmptyProp(row)+errEmptyType(row);
             }
             //true if zero
             if(checkZero(row)){
@@ -157,6 +157,18 @@ public class BOMLogicPX implements IEventAction {
         IAgileList value3 = (IAgileList)row.getValue(ItemConstants.ATT_BOM_BOM_LIST03);
         toReturn = !value1.toString().equals("")&&!value2.toString().equals("")&&!value3.toString().equals("");
         return toReturn;
+    }
+    private static String errEmptyType(IRow row) throws APIException {
+        IAgileList value = (IAgileList)row.getValue(ItemConstants.ATT_BOM_BOM_LIST01);
+        return !value.toString().equals("") ? "":"[原料/副產品]不能空";
+    }
+    private static String errEmptyBOMUnit(IRow row) throws APIException {
+        IAgileList value = (IAgileList)row.getValue(ItemConstants.ATT_BOM_BOM_LIST02);
+        return !value.toString().equals("") ? "":"[BOM單位]不能空";
+    }
+    private static String errEmptyProp(IRow row) throws APIException {
+        IAgileList value = (IAgileList)row.getValue(ItemConstants.ATT_BOM_BOM_LIST03);
+        return !value.toString().equals("") ? "":"[比例形態]不能空";
     }
     private static boolean checkZero(IRow row) throws APIException {
         String quantity = (String)row.getValue(ItemConstants.ATT_BOM_QTY);
