@@ -133,7 +133,7 @@ public class AutoAddBOM implements IEventAction {
             ITable redlinebomTable = full.getTable(ItemConstants.TABLE_REDLINEBOM);
             redlinebomTable.createRow(part);
         } catch (APIException e) {
-            logger.log("配方已經在產品裏！");
+            logger.log(2,"配方已經在產品裏！");
         }
     }
 
