@@ -57,7 +57,9 @@ public class AutoAddBOM implements IEventAction {
                 addAffectedItems(full, part);
             }
             logger.log("發行自動表單...");
-            releaseChange();
+            releaseChange(autoChange);
+            logger.log("發行原表單...");
+            releaseChange(changeOrder);
             logger.close();
             new File(FILE_PATH).delete();
             return new EventActionResult(event, new ActionResult(ActionResult.STRING, "程式進行成功"));
@@ -147,10 +149,10 @@ public class AutoAddBOM implements IEventAction {
     /*
      * Assumes two status. One Pending, One Release
      */
-    private static void releaseChange() throws APIException {
+    private static void releaseChange(IChange change) throws APIException {
 //        admin.disableWarning(new Integer(506));
 //        admin.disableWarning(new Integer(344));
-        autoChange.changeStatus(autoChange.getDefaultNextStatus(), false, null, false, false, null, null, null, false);
+    	change.changeStatus(change.getDefaultNextStatus(), false, null, false, false, null, null, null, false);
 //        admin.enableWarning(new Integer(506));
 //        admin.enableWarning(new Integer(344));
         logger.log(1, "表單發行成功");

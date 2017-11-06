@@ -5,5 +5,7 @@
 	<classpathentry kind="lib" path="C:/Users/user/Desktop/Anselm/October 2017/AgileAPI.jar"/>
 	<classpathentry kind="lib" path="C:/Users/user/Desktop/Anselm/October 2017/pxapi.jar"/>
 	<classpathentry kind="lib" path="C:/Users/user/Desktop/Anselm/October 2017/anselm.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/agile934"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Anselm"/>
 	<classpathentry kind="output" path="out/production/October 2017"/>
 </classpath>
