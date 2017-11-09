@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="AgileAPI">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/AgileAPI.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

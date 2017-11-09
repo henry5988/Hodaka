@@ -69,6 +69,9 @@ public class AutoAddBOM implements IEventAction {
                 ITable attachment = changeOrder.getAttachments();
                 attachment.createRow(FILE_PATH);
                 new File(FILE_PATH).delete();
+                IUser[] approvers = new IUser[]{admin.getCurrentUser()};
+                changeOrder.addApprovers(changeOrder.getStatus(), approvers, null, true,
+                        "re added Admin to approver.");
             } catch (APIException e2) {
                 e.printStackTrace();
             }
