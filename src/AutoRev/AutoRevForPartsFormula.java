@@ -8,7 +8,7 @@ import java.io.File;
 import java.util.Iterator;
 
 /**
- * Created by user on 10/23/2017.
+ * Created by William on 10/23/2017.
  */
 public class AutoRevForPartsFormula implements IEventAction {
     public static IAgileSession session;
