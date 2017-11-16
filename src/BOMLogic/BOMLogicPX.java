@@ -110,6 +110,8 @@ public class BOMLogicPX implements IEventAction {
         while (it.hasNext()) {
             error=false;
             row = (IRow)it.next();
+            if(row.isFlagSet(ItemConstants.FLAG_IS_REDLINE_REMOVED))
+                continue;
             bomNumber = (String)row.getValue(ItemConstants.ATT_BOM_ITEM_NUMBER);
             String e = "Error for 半成品 "+bomNumber+" :";
             logger.log(1,"Checking "+bomNumber+"...");
