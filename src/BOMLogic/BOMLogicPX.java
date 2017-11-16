@@ -74,13 +74,23 @@ public class BOMLogicPX implements IEventAction {
         }
 
     }
+    
+    
     private void resetStatus(IChange change, IUser user)
             throws APIException {
-
         // Check if the user can change status - 以admin的身份應該不會有問題的。
         if(user.hasPrivilege(UserConstants.PRIV_CHANGESTATUS, change)) {
-            IStatus nextStatus = change.getWorkflow().getStates()[0];
-            change.changeStatus(nextStatus, false, "", false, false, null, null, null, false);
+            IStatus currentStatus = change.getStatus();
+            IWorkflow wf = change.getWorkflow();
+            for(int i = 0; i<wf.getStates().length;i++){
+                if (currentStatus.equals(wf.getStates()[i])) {
+                    IStatus nextStatus = change.getWorkflow().getStates()[i-1];
+                    change.changeStatus(nextStatus, false, "", false, false, null, null, null, false);
+                    break;
+                }
+            }
+
+
         } else {
             logger.log("Insufficient privileges to change status.");
         }
@@ -98,15 +108,17 @@ public class BOMLogicPX implements IEventAction {
             logger.log(1,"需至少包含一筆原料，且數量不得為0!");
         }
         while (it.hasNext()) {
+            error=false;
             row = (IRow)it.next();
             bomNumber = (String)row.getValue(ItemConstants.ATT_BOM_ITEM_NUMBER);
             String e = "Error for 半成品 "+bomNumber+" :";
             logger.log(1,"Checking "+bomNumber+"...");
             //check if BOM contains only 原料 or 回收料
-            if(!checkType(bomNumber)){
+            //暫時不需要
+            /*if(!checkType(bomNumber)){
                 error=true;
                 e += "組成的料件類型僅能為原料/回收料!// ";
-            }
+            }*/
             //true if nonempty
             if(!checkEmpty(row)){
                 error=true;
@@ -135,13 +147,14 @@ public class BOMLogicPX implements IEventAction {
     }
     private static boolean checkOrig(Iterator it) throws APIException {
         IRow     row;
-        String   bomNumber;
+        String   bomType;
         String quantity;
         while(it.hasNext()){
             row = (IRow)it.next();
-            bomNumber = (String)row.getValue(ItemConstants.ATT_BOM_ITEM_NUMBER);
+            IAgileList value = (IAgileList)row.getValue(ItemConstants.ATT_BOM_BOM_LIST01);
+            bomType = value.toString();
             quantity = (String)row.getValue(ItemConstants.ATT_BOM_QTY);
-            if(bomNumber.charAt(0) =='2'){
+            if(bomType.equals("原料")){
                 return !quantity.equals("0");
             }
         }
