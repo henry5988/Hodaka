@@ -1,3 +1,6 @@
 *.iml
 *.xml
 *.eml
+/out
+*.doc*
+*.jar
