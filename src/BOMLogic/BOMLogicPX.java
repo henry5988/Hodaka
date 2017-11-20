@@ -126,6 +126,11 @@ public class BOMLogicPX implements IEventAction {
                 error=true;
                 e += errEmptyBOMUnit(row)+errEmptyProp(row)+errEmptyType(row);
             }
+            //true if problem
+            if(!checkKGandPC(row)){
+                error=true;
+                e += "[BOM單位]需要與主單位+次單位一致！//";
+            }
             //true if zero
             if(checkZero(row)){
                 error=true;
@@ -192,6 +197,19 @@ public class BOMLogicPX implements IEventAction {
     private static boolean checkFindNum(IRow row) throws APIException {
         String findNum = (String)row.getValue(ItemConstants.ATT_BOM_FIND_NUM);
         return findNum.length()!=4;
+    }
+    //return false if fails
+    //returns true if pass
+    private static boolean checkKGandPC(IRow row) throws APIException{
+        String main = row.getValue(ItemConstants.ATT_PAGE_TWO_LIST11).toString();
+        String sub = row.getValue(ItemConstants.ATT_PAGE_TWO_LIST12).toString();
+        if(main.equals(sub)){
+            String BOMUnit = row.getValue(ItemConstants.ATT_BOM_BOM_LIST02).toString();
+            if(!BOMUnit.equals(main)){
+                return false;
+            }
+        }
+        return true;
     }
     private static boolean checkType(String bomNumber) {
         //2 是原物料 5 是回收料
