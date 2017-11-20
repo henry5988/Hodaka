@@ -132,6 +132,11 @@ public class BOMLogicCustomAction implements ICustomAction {
                 error=true;
                 e += "[BOM單位]需要與主單位+次單位一致！//";
             }
+            //true if problem
+            if(!checkConversionRate(row)){
+                error=true;
+                e += "[標準單位轉換率]由於kg與pc一致所以值只能為1！//";
+            }
             //true if zero
             if(checkZero(row)){
                 error=true;
@@ -207,6 +212,17 @@ public class BOMLogicCustomAction implements ICustomAction {
         if(main.equals(sub)){
             String BOMUnit = row.getValue(ItemConstants.ATT_BOM_BOM_LIST02).toString();
             if(!BOMUnit.equals(main)){
+                return false;
+            }
+        }
+        return true;
+    }
+    private static boolean checkConversionRate(IRow row) throws APIException{
+        String main = row.getValue(ItemConstants.ATT_PAGE_TWO_LIST11).toString();
+        String sub = row.getValue(ItemConstants.ATT_PAGE_TWO_LIST12).toString();
+        if(main.equals(sub)){
+            int conversionRate = (int) row.getValue(ItemConstants.ATT_PAGE_TWO_NUMERIC01);
+            if(conversionRate!=1){
                 return false;
             }
         }
