@@ -207,8 +207,8 @@ public class BOMLogicCustomAction implements ICustomAction {
     //return false if fails
     //returns true if pass
     private static boolean checkKGandPC(IRow row) throws APIException{
-        String main = row.getValue(ItemConstants.ATT_PAGE_TWO_LIST11).toString();
-        String sub = row.getValue(ItemConstants.ATT_PAGE_TWO_LIST12).toString();
+        String main = row.getValue(ItemConstants.ATT_BOM_ITEM_LIST11).toString();
+        String sub = row.getValue(ItemConstants.ATT_BOM_ITEM_LIST12).toString();
         if(main.equals(sub)){
             String BOMUnit = row.getValue(ItemConstants.ATT_BOM_BOM_LIST02).toString();
             if(!BOMUnit.equals(main)){
@@ -218,11 +218,11 @@ public class BOMLogicCustomAction implements ICustomAction {
         return true;
     }
     private static boolean checkConversionRate(IRow row) throws APIException{
-        String main = row.getValue(ItemConstants.ATT_PAGE_TWO_LIST11).toString();
-        String sub = row.getValue(ItemConstants.ATT_PAGE_TWO_LIST12).toString();
+        String main = row.getValue(ItemConstants.ATT_BOM_ITEM_LIST11).toString();
+        String sub = row.getValue(ItemConstants.ATT_BOM_ITEM_LIST12).toString();
         if(main.equals(sub)){
-            int conversionRate = (int) row.getValue(ItemConstants.ATT_PAGE_TWO_NUMERIC01);
-            if(conversionRate!=1){
+            double conversionRate = (double) row.getValue(ItemConstants.ATT_BOM_ITEM_P2_NUMERIC01);
+            if(conversionRate!=1.0){
                 return false;
             }
         }
