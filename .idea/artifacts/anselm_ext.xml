@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="anselm-ext">
+    <output-path>$PROJECT_DIR$/../..</output-path>
+    <root id="archive" name="anselm-ext.jar">
+      <element id="module-output" name="Hodaka" />
+      <element id="library" level="project" name="anselm" />
+      <element id="library" level="project" name="AgileAPI" />
+      <element id="library" level="project" name="pxapi" />
+      <element id="file-copy" path="$PROJECT_DIR$/../../CommissionRate/src/META-INF/MANIFEST.MF" />
+      <element id="dir-copy" path="$PROJECT_DIR$/src/META-INF/services" />
+    </root>
+  </artifact>
+</component>

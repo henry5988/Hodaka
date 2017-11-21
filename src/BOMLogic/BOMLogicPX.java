@@ -221,7 +221,6 @@ public class BOMLogicPX implements IEventAction {
         String sub = row.getValue(ItemConstants.ATT_BOM_ITEM_LIST12).toString();
         if(main.equals(sub)){
             double conversionRate = (double) row.getValue(ItemConstants.ATT_BOM_ITEM_P2_NUMERIC01);
-            System.out.println(conversionRate);
             if(conversionRate!=1.0){
                 return false;
             }
