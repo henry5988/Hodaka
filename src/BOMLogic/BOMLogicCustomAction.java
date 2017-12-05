@@ -104,7 +104,7 @@ public class BOMLogicCustomAction implements ICustomAction {
         Iterator it2   = table.iterator();
         boolean error = false;
 
-        if(!checkOrig(it2)){
+        if(it.hasNext()&&!checkOrig(it2)){
             problem=true;
             logger.log(1,"需至少包含一筆原料，且數量不得為0!");
         }
