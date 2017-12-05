@@ -153,11 +153,9 @@ public class AutoAddBOM implements IEventAction {
      * Assumes two status. One Pending, One Release
      */
     private static void releaseChange() throws APIException {
-//        admin.disableWarning(new Integer(506));
-//        admin.disableWarning(new Integer(344));
+        admin.disableAllWarnings();
         autoChange.changeStatus(autoChange.getDefaultNextStatus(), false, null, false, false, null, null, null, false);
-//        admin.enableWarning(new Integer(506));
-//        admin.enableWarning(new Integer(344));
+        admin.enableAllWarnings();
         logger.log(1, "表單發行成功");
     }
 }
