@@ -117,7 +117,9 @@ public class AutoAddBOM implements IEventAction {
             }
         } else {
             logger.log(1, "..否");
+            admin.disableAllWarnings();
             affectedItemRow = affectedItems.createRow(full);
+            admin.enableAllWarnings();
             list.add(full);
         }
         logger.log(1, "自動添加" + part.getName() + "進" + full.getName() + "的半成品裏..");
