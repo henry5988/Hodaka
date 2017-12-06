@@ -17,7 +17,8 @@ import java.util.Iterator;
 public class BOMLogicPX implements IEventAction {
     private static LogIt logger;
     private static boolean problem;
-    private final String FILE_PATH = "C:/Agile/BomLogic.txt";
+    private String FILE_PATH = "C:/Agile/BomLogic"+System.currentTimeMillis
+            ()+".txt";
     private final String INI_FILE_PATH = "C:/Agile/Config.ini";
     private IAgileSession admin;
     @Override
@@ -53,6 +54,7 @@ public class BOMLogicPX implements IEventAction {
                 getBOM(item, 1);
             }
             if (problem) {
+                logger.log("由於邏輯失敗，不可進站，請維護好后再重新嘗試!");
                 resetStatus(changeOrder, admin.getCurrentUser());
                 logger.close();
                 ITable attachment = changeOrder.getAttachments();
@@ -73,7 +75,7 @@ public class BOMLogicPX implements IEventAction {
             logger.close();
             new File(FILE_PATH).delete();
             return new EventActionResult(event, new ActionResult(ActionResult
-                    .STRING, e.toString()));
+                    .STRING, "程式出錯"));
         }
 
     }
@@ -164,7 +166,8 @@ public class BOMLogicPX implements IEventAction {
             /*IItem bomItem = (IItem)row.getReferent();
             getBOM(bomItem, level + 1);*/
         }
-        if(problem = count==0){
+        if(count==0){
+            problem=true;
             logger.log(level,"無BOM ITEM!");
         }
     }

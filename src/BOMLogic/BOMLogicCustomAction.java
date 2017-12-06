@@ -7,6 +7,7 @@ import com.anselm.plm.utilobj.Ini;
 import william.util.LogIt;
 
 import java.io.File;
+import java.util.Date;
 import java.util.Iterator;
 
 
@@ -17,7 +18,8 @@ import java.util.Iterator;
 public class BOMLogicCustomAction implements ICustomAction {
     private static LogIt logger;
     private static boolean problem;
-    private final String FILE_PATH = "C:/Agile/BomLogic.txt";
+    private String FILE_PATH = "C:/Agile/BomLogic"+ System.currentTimeMillis
+            ()+".txt";
     private final String INI_FILE_PATH = "C:/Agile/Config.ini";
     private IAgileSession admin;
 
@@ -37,7 +39,6 @@ public class BOMLogicCustomAction implements ICustomAction {
 
         try {
             IChange changeOrder = (IChange) obj;
-
             logger.log("GetChange: " + changeOrder.getName());
             ITable affTab = changeOrder.getTable(ChangeConstants.TABLE_AFFECTEDITEMS);
             logger.log("GetTable: " + affTab.getName());
@@ -65,14 +66,14 @@ public class BOMLogicCustomAction implements ICustomAction {
             else{
                 logger.close();
                 new File(FILE_PATH).delete();
-                return new ActionResult(ActionResult.STRING,"程式執行成功");
+                return new ActionResult(ActionResult.STRING,"程式執行成功!!!!");
             }
 
         } catch (APIException e) {
             e.printStackTrace();
             logger.close();
             new File(FILE_PATH).delete();
-            return new ActionResult(ActionResult.STRING, e.toString());
+            return new ActionResult(ActionResult.STRING, "程式出錯");
         }
 
     }
@@ -162,7 +163,8 @@ public class BOMLogicCustomAction implements ICustomAction {
             /*IItem bomItem = (IItem)row.getReferent();
             getBOM(bomItem, level + 1);*/
         }
-        if(problem = count==0){
+        if(count==0){
+            problem=true;
             logger.log(level,"無BOM ITEM!");
         }
     }
