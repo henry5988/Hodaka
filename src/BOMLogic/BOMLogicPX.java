@@ -58,19 +58,22 @@ public class BOMLogicPX implements IEventAction {
                 ITable attachment = changeOrder.getAttachments();
                 attachment.createRow(FILE_PATH);
                 new File(FILE_PATH).delete();
-                return new EventActionResult(event, new ActionResult(ActionResult.STRING, "過站失敗，請讀取attachment的log檔"));
+                return new EventActionResult(event, new ActionResult
+                        (ActionResult.STRING, "過站失敗，請讀取附件的log檔"));
             }
             else{
                 logger.close();
                 new File(FILE_PATH).delete();
-                return new EventActionResult(event, new ActionResult(ActionResult.STRING,"成功"));
+                return new EventActionResult(event, new ActionResult
+                        (ActionResult.STRING,"程式執行成功"));
             }
 
         } catch (APIException e) {
             e.printStackTrace();
             logger.close();
             new File(FILE_PATH).delete();
-            return new EventActionResult(event, new ActionResult(ActionResult.STRING, "程式出錯"));
+            return new EventActionResult(event, new ActionResult(ActionResult
+                    .STRING, e.toString()));
         }
 
     }
@@ -85,7 +88,8 @@ public class BOMLogicPX implements IEventAction {
             for(int i = 0; i<wf.getStates().length;i++){
                 if (currentStatus.equals(wf.getStates()[i])) {
                     IStatus nextStatus = change.getWorkflow().getStates()[i-1];
-                    change.changeStatus(nextStatus, false, "", false, false, null, null, null, false);
+                    change.changeStatus(nextStatus, false, "", false,
+                            false, null, null, null,  false);
                     break;
                 }
             }
@@ -102,16 +106,19 @@ public class BOMLogicPX implements IEventAction {
         Iterator it    = table.iterator();
         Iterator it2   = table.iterator();
         boolean error = false;
-
+        int count=0;
+        //check empty
         if(it.hasNext()&&!checkOrig(it2)){
-            problem=true;
-            logger.log(1,"需至少包含一筆原料，且數量不得為0!");
+            problem = true;
+            logger.log(1, "需至少包含一筆原料，且數量不得為0!");
         }
+
         while (it.hasNext()) {
             error=false;
             row = (IRow)it.next();
             if(row.isFlagSet(ItemConstants.FLAG_IS_REDLINE_REMOVED))
                 continue;
+            count++;
             bomNumber = (String)row.getValue(ItemConstants.ATT_BOM_ITEM_NUMBER);
             String e = "Error for 半成品 "+bomNumber+" :";
             logger.log(1,"Checking "+bomNumber+"...");
@@ -152,11 +159,16 @@ public class BOMLogicPX implements IEventAction {
             else {
                 logger.log(level,"...OK");
             }
+
             //If want recursion - uncomment
             /*IItem bomItem = (IItem)row.getReferent();
             getBOM(bomItem, level + 1);*/
         }
+        if(problem = count==0){
+            logger.log(level,"無BOM ITEM!");
+        }
     }
+
     private static boolean checkOrig(Iterator it) throws APIException {
         IRow     row;
         String   bomType;
