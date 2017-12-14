@@ -5,16 +5,16 @@ import com.agile.api.*;
 import java.util.HashMap;
 
 /**
- * Created by user on 10/18/2017.
+ * Created by William on 10/18/2017.
  */
 public class ServerInfo {
     // Update the following fields with information for your server
     final static String connectString = "http://plmdemo/Agile/";
-    final static String username = "admin";
-    final static String password = "agile935";
+    final static String username = "anselm";
+    final static String password = "11111";
     public static AgileSessionFactory m_factory;
 
-    public static IAgileSession login(String username, String password, String connectString) throws APIException {
+    public static IAgileSession login() throws APIException {
 
         // Create the params variable to hold login parameters
         HashMap params = new HashMap();
@@ -40,14 +40,31 @@ public class ServerInfo {
         System.out.println("Logged in user: " + userName);
         return userName;
     }
-    public static IChange getChange(IAgileSession session, String itemNum) throws APIException{
+    public static IChange getECO(IAgileSession session, String changeNum)
+            throws APIException{
         IChange change;
-        change = (IChange) session.getObject(ChangeConstants.CLASS_CHANGE_BASE_CLASS,itemNum);
-        System.out.println(change.getName());
+        change = (IChange) session.getObject(ChangeConstants.CLASS_ECO,changeNum);
+        System.out.println("GET CHANGE: "+change.getName());
+        return change;
+    }
+    public static IChange getECR(IAgileSession session, String changeNum)
+            throws APIException{
+        IChange change;
+        change = (IChange) session.getObject(ChangeConstants.CLASS_ECR,
+                changeNum);
+        System.out.println("GET CHANGE: "+change.getName());
         return change;
     }
 
-    public static ITable getAffTab(IChange change) throws APIException{
+    public static IItem getItem(IAgileSession session, String itemNum) throws
+            APIException{
+        IItem item;
+        item = (IItem) session.getObject(ItemConstants.CLASS_ITEM_BASE_CLASS,itemNum);
+        System.out.println("GET ITEM: "+item.getName());
+        return item;
+    }
+
+    public static ITable getAffectedTab(IChange change) throws APIException{
         ITable table;
         table = change.getTable(ChangeConstants.TABLE_AFFECTEDITEMS);
         System.out.println("Size of aff table: "+table.size());
