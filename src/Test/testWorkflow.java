@@ -8,7 +8,7 @@ import java.util.HashMap;
 /**
  * Created by user on 10/18/2017.
  */
-public class testWorkflow extends ServerInfo {
+public class testWorkflow extends Utils {
     private static final String ITEM_NUMBER = "FG1-0000000001";
     public static IAgileSession session;
     public static void main(String[] args){

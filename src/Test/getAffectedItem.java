@@ -8,7 +8,7 @@ import java.util.Iterator;
  * Created by user on 10/19/2017.
  * testing affected item
  */
-public class getAffectedItem extends ServerInfo{
+public class getAffectedItem extends Utils {
     public static IAgileSession session;
     public static void main(String[] args) throws APIException {
         session = login(username,password,connectString);
