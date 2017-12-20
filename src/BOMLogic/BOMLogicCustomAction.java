@@ -174,6 +174,8 @@ public class BOMLogicCustomAction implements ICustomAction {
         String quantity;
         while(it.hasNext()){
             row = (IRow)it.next();
+            if(row.isFlagSet(ItemConstants.FLAG_IS_REDLINE_REMOVED))
+                continue;
             IAgileList value = (IAgileList)row.getValue(ItemConstants.ATT_BOM_BOM_LIST01);
             bomType = value.toString();
             quantity = (String)row.getValue(ItemConstants.ATT_BOM_QTY);
