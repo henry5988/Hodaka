@@ -13,7 +13,7 @@ public class testWorkflow extends Utils {
     public static IAgileSession session;
     public static void main(String[] args){
         try {
-            session = login(username,password,connectString);
+            session = login();
             String user = getCurrentUser(session);
             //IItem item = create(session);
             IItem item = get(ITEM_NUMBER);

@@ -11,7 +11,7 @@ import java.util.Iterator;
 public class getAffectedItem extends Utils {
     public static IAgileSession session;
     public static void main(String[] args) throws APIException {
-        session = login(username,password,connectString);
+        session = login();
         String user = getCurrentUser(session);
         /*IAgileClass objClass = session.getAdminInstance().getAgileClass("配方變更申請單");
         System.out.println(objClass.getName());

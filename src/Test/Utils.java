@@ -9,9 +9,9 @@ import java.util.HashMap;
  */
 public class Utils {
     // Update the following fields with information for your server
-    final static String connectString = "http://plmdemo/Agile/";
-    final static String username = "anselm";
-    final static String password = "11111";
+    final static String connectString = "http://hodakadb:7001/Agile/";
+    final static String username = "admin";
+    final static String password = "agile934";
     public static AgileSessionFactory m_factory;
 
     public static IAgileSession login() throws APIException {
