@@ -182,7 +182,7 @@ public class BOMLogicPX implements IEventAction {
             bomType = value.toString();
             quantity = (String)row.getValue(ItemConstants.ATT_BOM_QTY);
             if(bomType.equals("原料")){
-                return !quantity.equals("0");
+                return !quantity.equals("0") && !quantity.equals("");
             }
         }
         return false;
