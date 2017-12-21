@@ -23,29 +23,48 @@ public class AutoNumberCustomAction {
         XSSFCell cell;
 
         Iterator rows = sheet.rowIterator();
-
+        //Skip first row
+        rows.next();
         while (rows.hasNext())
         {
             row=(XSSFRow) rows.next();
             Iterator cells = row.cellIterator();
+            String output = "";
+            //Skip name
+            cells.next();
             while (cells.hasNext())
             {
                 cell=(XSSFCell) cells.next();
 
                 if (cell.getCellTypeEnum() == CellType.STRING)
                 {
-
-                    System.out.print(cell.getStringCellValue()+" ");
+                    String c = cell.getStringCellValue();
+                    if(c.equals("end"))break;
+                    if(c.charAt(0)=='$')output+=c.substring(1);
+                    //會不會就只有'~'
+                    if(c.charAt(0)=='~'){
+                        //length of variable
+                        int length = Integer.parseInt(c.replaceAll
+                                ("[^0-9]", ""));
+                        String value = c.replaceAll("[0-9]","").replace
+                                ("~","");
+                        System.out.println(length+" "+value.length());
+                        output+= c;
+                    }
+//                    System.out.print(c+" ");
+                    output += c;
                 }
                 else if(cell.getCellTypeEnum() == CellType.NUMERIC)
                 {
-                    System.out.print(cell.getNumericCellValue()+" ");
+                    double c = cell.getNumericCellValue();
+//                    System.out.print(c+" ");
+                    output += c;
                 }
                 else{
                     //U Can Handel Boolean, Formula, Errors
                 }
             }
-            System.out.println();
+//            System.out.println(output);
         }
     }
 }
