@@ -71,11 +71,22 @@ public class BOMLogicPX implements IEventAction {
             }
 
         } catch (APIException e) {
-            e.printStackTrace();
+            logger.log(e.toString());
             logger.close();
+            try {
+                IChange changeOrder = (IChange) info.getDataObject();
+                resetStatus( changeOrder, admin
+                        .getCurrentUser());
+                ITable attachment = changeOrder.getAttachments();
+                attachment.createRow(FILE_PATH);
+            } catch (APIException e1) {
+                e1.printStackTrace();
+                return new EventActionResult(event, new ActionResult(ActionResult
+                        .STRING, "變更狀態時出錯"));
+            }
             new File(FILE_PATH).delete();
             return new EventActionResult(event, new ActionResult(ActionResult
-                    .STRING, "程式出錯"));
+                    .STRING, "程式出錯請檢查attachment裏的log檔！"));
         }
 
     }
