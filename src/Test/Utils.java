@@ -85,5 +85,25 @@ public class Utils {
         return table;
     }
 
+    private void resetStatus(IChange change, IUser user)
+            throws APIException {
+        // Check if the user can change status - 以admin的身份應該不會有問題的。
+        if(user.hasPrivilege(UserConstants.PRIV_CHANGESTATUS, change)) {
+            IStatus currentStatus = change.getStatus();
+            IWorkflow wf = change.getWorkflow();
+            for(int i = 0; i<wf.getStates().length;i++){
+                if (currentStatus.equals(wf.getStates()[i])) {
+                    IStatus previousStatus = change.getWorkflow().getStates()[i-1];
+                    change.changeStatus(previousStatus, false, "", false, false, null, null, null, false);
+                    break;
+                }
+            }
+
+
+        } else {
+            System.out.println("Insufficient privileges to change status.");
+        }
+    }
+
 
 }
