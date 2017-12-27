@@ -28,7 +28,7 @@ public class AutoAddBOMAndPromote implements ICustomAction {
     public ActionResult doAction(IAgileSession session, INode
             actionNode, IDataObject change) {
         try {
-            logger = new LogIt("AutoAddBOM");
+            logger = new LogIt("AutoAddBOMAndPromote");
             logger.setLogFile(FILE_PATH);
             Ini ini = new Ini(INI_FILE_PATH);
             //Get Admin Session

@@ -27,7 +27,7 @@ public class AutoAddBOM implements IEventAction {
     public EventActionResult doAction(IAgileSession session, INode actionNode, IEventInfo event) {
         IWFChangeStatusEventInfo info = (IWFChangeStatusEventInfo) event;
         try {
-            logger = new LogIt("AutoAddBOM");
+            logger = new LogIt("AutoAddBOMEventAction");
             logger.setLogFile(FILE_PATH);
             Ini ini = new Ini(INI_FILE_PATH);
             //Get Admin Session
