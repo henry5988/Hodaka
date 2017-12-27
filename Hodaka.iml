@@ -10,5 +10,6 @@
     <orderEntry type="library" name="AgileAPI" level="project" />
     <orderEntry type="library" name="pxapi" level="project" />
     <orderEntry type="library" name="anselm" level="project" />
+    <orderEntry type="library" name="Apache Poi" level="project" />
   </component>
 </module>

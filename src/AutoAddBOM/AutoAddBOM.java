@@ -58,13 +58,7 @@ public class AutoAddBOM implements IEventAction {
             }
             logger.log("發行自動表單...");
             releaseChange();
-            logger.log("發行成功...\n自動進展..");
-            admin.disableAllWarnings();
-            changeOrder.changeStatus(changeOrder.getDefaultNextStatus(),
-                    false, null,
-                    false, false, null, null, null, false);
-            admin.enableAllWarnings();
-            logger.log("自動發行成功!");
+            logger.log("發行成功...");
             logger.close();
             new File(FILE_PATH).delete();
             return new EventActionResult(event, new ActionResult(ActionResult.STRING, "程式進行成功"));

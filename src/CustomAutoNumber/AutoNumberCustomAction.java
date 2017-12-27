@@ -48,7 +48,7 @@ public class AutoNumberCustomAction {
                                 ("[^0-9]", ""));
                         String value = c.replaceAll("[0-9]","").replace
                                 ("~","");
-                        System.out.println(length+" "+value.length());
+                        System.out.println(length+" "+value);
                         output+= c;
                     }
 //                    System.out.print(c+" ");
@@ -56,7 +56,7 @@ public class AutoNumberCustomAction {
                 }
                 else if(cell.getCellTypeEnum() == CellType.NUMERIC)
                 {
-                    double c = cell.getNumericCellValue();
+                    int c = (int) cell.getNumericCellValue();
 //                    System.out.print(c+" ");
                     output += c;
                 }

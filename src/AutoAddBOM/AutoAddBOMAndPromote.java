@@ -1,7 +1,8 @@
 package AutoAddBOM;
 
 import com.agile.api.*;
-import com.agile.px.*;
+import com.agile.px.ActionResult;
+import com.agile.px.ICustomAction;
 import com.anselm.plm.util.AUtil;
 import com.anselm.plm.utilobj.Ini;
 import william.util.LogIt;
@@ -12,13 +13,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- * Created by William on 12/27/2017.
- * Event 配方整合->發行
- * Event Subscriber: POST
- * 程式進行成功留在發行
- * 程式失敗自動將admin加進配方整合的approver裏避免自動進站並退回配方整合
+ * Created by user on 10/18/2017.
  */
-public class AutoAddBOM_C00 implements IEventAction {
+public class AutoAddBOMAndPromote implements ICustomAction {
     private static IChange autoChange;
     private static ArrayList<IItem> list;
     private static IAgileSession admin;
@@ -28,8 +25,8 @@ public class AutoAddBOM_C00 implements IEventAction {
     private static IChange changeOrder;
 
     @Override
-    public EventActionResult doAction(IAgileSession session, INode actionNode, IEventInfo event) {
-        IWFChangeStatusEventInfo info = (IWFChangeStatusEventInfo) event;
+    public ActionResult doAction(IAgileSession session, INode
+            actionNode, IDataObject change) {
         try {
             logger = new LogIt("AutoAddBOM");
             logger.setLogFile(FILE_PATH);
@@ -40,7 +37,7 @@ public class AutoAddBOM_C00 implements IEventAction {
             e.printStackTrace();
         }
         try {
-            changeOrder = (IChange) info.getDataObject();
+            changeOrder = (IChange) change;
             //Arraylist to do duplicate checking.
             list = new ArrayList<IItem>();
 
@@ -63,9 +60,16 @@ public class AutoAddBOM_C00 implements IEventAction {
             logger.log("發行自動表單...");
             releaseChange();
             logger.log("發行成功...");
+            logger.log("自動進站到發行..");
+            admin.disableAllWarnings();
+            changeOrder.changeStatus(changeOrder.getDefaultNextStatus(), false,
+                    null, false, false, null, null, null, false);
+            admin.enableAllWarnings();
+            logger.log("自動進站成功");
             logger.close();
             new File(FILE_PATH).delete();
-            return new EventActionResult(event, new ActionResult(ActionResult.STRING, "程式進行成功"));
+            return new ActionResult(ActionResult.STRING,
+                    "[AutoAddBOMAndPromote]程式進行成功");
 
         } catch (APIException e) {
             logger.log("程式出錯");
@@ -74,40 +78,15 @@ public class AutoAddBOM_C00 implements IEventAction {
                 ITable attachment = changeOrder.getAttachments();
                 attachment.createRow(FILE_PATH);
                 new File(FILE_PATH).delete();
-                resetStatus(changeOrder,session.getCurrentUser());
             } catch (APIException e2) {
                 e.printStackTrace();
             }
             e.printStackTrace();
-            return new EventActionResult(event, new ActionResult(ActionResult.STRING, "程式運行失敗"));
+            return new ActionResult(ActionResult.STRING,
+                    "[AutoAddBOMAndPromote]程式運行失敗,請檢查log");
 
         }
 
-    }
-
-    private void resetStatus(IChange change, IUser user)
-            throws APIException {
-        // Check if the user can change status - 以admin的身份應該不會有問題的。
-        if(user.hasPrivilege(UserConstants.PRIV_CHANGESTATUS, change)) {
-            IStatus currentStatus = change.getStatus();
-            IWorkflow wf = change.getWorkflow();
-            for(int i = 0; i<wf.getStates().length;i++){
-                if (currentStatus.equals(wf.getStates()[i])) {
-                    IStatus previousStatus = change.getWorkflow().getStates()[i-1];
-                    IUser[] approvers = new IUser[]{admin.getCurrentUser()};
-                    change.addApprovers(previousStatus, approvers, null, true,
-                            "re added Admin to approver.");
-                    admin.disableAllWarnings();
-                    change.changeStatus(previousStatus, false, "", false, false, null, null, null, false);
-                    admin.enableAllWarnings();
-                    return;
-                }
-            }
-
-
-        } else {
-            logger.log("Insufficient privileges to change status.");
-        }
     }
 
     /*
