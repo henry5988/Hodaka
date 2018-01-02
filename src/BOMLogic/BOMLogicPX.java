@@ -7,6 +7,8 @@ import com.anselm.plm.utilobj.Ini;
 import william.util.LogIt;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Iterator;
 
 
@@ -17,8 +19,7 @@ import java.util.Iterator;
 public class BOMLogicPX implements IEventAction {
     private static LogIt logger;
     private static boolean problem;
-    private String FILE_PATH = "C:/Agile/BomLogic"+System.currentTimeMillis
-            ()+".txt";
+    private String FILE_PATH = "C:/Agile/BomLogic"+new SimpleDateFormat("yyyyMMdd_HHmm").format(Calendar.getInstance().getTime())+".txt";
     private final String INI_FILE_PATH = "C:/Agile/Config.ini";
     private IAgileSession admin;
     @Override
