@@ -3,6 +3,8 @@ package CustomAutoNumber;
 import com.agile.api.*;
 import com.agile.px.ActionResult;
 import com.agile.px.ICustomAction;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -22,7 +24,57 @@ public class AutoNumberCustomAction implements ICustomAction{
     static final String EXCEL_FILE = ini.getValue("File Location",
             "EXCEL_FILE_PATH");
     public static void main(String[] args) throws IOException {
+        InputStream ExcelFileToRead = new FileInputStream
+                (EXCEL_FILE);
+        XSSFWorkbook wb = new XSSFWorkbook(ExcelFileToRead);
+        XSSFSheet sheet = wb.getSheetAt(0);
+        XSSFRow row;
+        XSSFCell cell;
 
+        Iterator rows = sheet.rowIterator();
+        //Skip first row
+        rows.next();
+        while (rows.hasNext())
+        {
+            row=(XSSFRow) rows.next();
+            Iterator cells = row.cellIterator();
+            String autoNumber = "";
+            //Skip name
+            cells.next();
+            while (cells.hasNext())
+            {
+                cell=(XSSFCell) cells.next();
+
+                if (cell.getCellTypeEnum() == CellType.STRING)
+                {
+                    String c = cell.getStringCellValue();
+                    if(c.equals("end"))break;
+                    if(c.charAt(0)=='$')autoNumber+=c.substring(1);
+                    if(c.charAt(0)=='~'){
+                        //length of variable
+                        int length = Integer.parseInt(c.replaceAll
+                                ("[^0-9]", ""));
+                        String value = c.replaceAll("[0-9]","").replace
+                                ("~","");
+//                        System.out.println(length+" "+value);
+                        autoNumber+= c;
+                    }
+//                    System.out.print(c+" ");
+
+
+                }
+                else if(cell.getCellTypeEnum() == CellType.NUMERIC)
+                {
+                    int c = (int) cell.getNumericCellValue();
+                    autoNumber += c;
+                }
+                else{
+//                    System.out.println(cell.getRawValue());
+                    //U Can Handel Boolean, Formula, Errors
+                }
+            }
+            System.out.println(autoNumber);
+        }
     }
 
     @Override
@@ -83,6 +135,43 @@ public class AutoNumberCustomAction implements ICustomAction{
         String autoNumber = "";
         //Get Row
         XSSFRow row = sheet.getRow(rowNum);
+        Iterator cells = row.cellIterator();
+        //Skip name cell
+        cells.next();
+        XSSFCell cell;
+        while(cells.hasNext()){
+            cell = (XSSFCell) cells.next();
+            if (cell.getCellTypeEnum() == CellType.STRING)
+            {
+                String c = cell.getStringCellValue();
+                if(c.equals("end"))break;
+                if(c.charAt(0)=='$')autoNumber+=c.substring(1);
+                //會不會就只有'~'
+                if(c.charAt(0)=='~'){
+                    //length of variable
+                    int length = Integer.parseInt(c.replaceAll
+                            ("[^0-9]", ""));
+                    String value = c.replaceAll("[0-9]","").replace
+                            ("~","");
+//                        System.out.println(length+" "+value);
+                    autoNumber+= c;
+                }
+//                    System.out.print(c+" ");
+
+            }
+            else if(cell.getCellTypeEnum() == CellType.NUMERIC)
+            {
+                int c = (int) cell.getNumericCellValue();
+                autoNumber += c;
+//                    System.out.println(c);
+
+            }
+            else{
+                //U Can Handel Boolean, Formula, Errors
+                //ignore null
+            }
+        }
+
 
 
         return autoNumber;
@@ -100,9 +189,10 @@ public class AutoNumberCustomAction implements ICustomAction{
         while (it.hasNext())
         {
             row=(XSSFRow) it.next();
-            String className = (String) row.getCell(0).getStringCellValue();
+            String className = row.getCell(0).getStringCellValue();
             if (className.equals(agileClass))return row.getRowNum();
         }
         return -1;
     }
 }
+// subclass name probably can't be found due to chinese character vs apiname
