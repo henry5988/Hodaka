@@ -76,10 +76,11 @@ public class BOMLogicPX implements IEventAction {
             logger.close();
             try {
                 IChange changeOrder = (IChange) info.getDataObject();
-                resetStatus( changeOrder, admin
-                        .getCurrentUser());
+//                resetStatus( changeOrder, admin
+//                        .getCurrentUser());
                 ITable attachment = changeOrder.getAttachments();
                 attachment.createRow(FILE_PATH);
+                new File(FILE_PATH).delete();
             } catch (APIException e1) {
                 e1.printStackTrace();
                 return new EventActionResult(event, new ActionResult(ActionResult
@@ -97,12 +98,15 @@ public class BOMLogicPX implements IEventAction {
             throws APIException {
         // Check if the user can change status - 以admin的身份應該不會有問題的。
         if(user.hasPrivilege(UserConstants.PRIV_CHANGESTATUS, change)) {
-            IStatus currentStatus = change.getStatus();
-            IWorkflow wf = change.getWorkflow();
+            IChange changeOrder = (IChange) admin.getObject(ChangeConstants
+                    .CLASS_ECO,change.getName());
+            IStatus currentStatus = changeOrder.getStatus();
+            IWorkflow wf = changeOrder.getWorkflow();
             for(int i = 0; i<wf.getStates().length;i++){
                 if (currentStatus.equals(wf.getStates()[i])) {
-                    IStatus nextStatus = change.getWorkflow().getStates()[i-1];
-                    change.changeStatus(nextStatus, false, "", false,
+                    IStatus nextStatus = changeOrder.getWorkflow().getStates()
+                            [i-1];
+                    changeOrder.changeStatus(nextStatus, false, "", false,
                             false, null, null, null,  false);
                     break;
                 }
