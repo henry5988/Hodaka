@@ -1,5 +1,8 @@
 package CustomAutoNumber;
 
+import com.agile.api.*;
+import com.agile.px.ActionResult;
+import com.agile.px.ICustomAction;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -12,7 +15,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 
-public class AutoNumberCustomAction {
+import static Test.Utils.getAffectedTable;
+
+public class AutoNumberCustomAction implements ICustomAction{
     public static void main(String[] args) throws IOException {
         InputStream ExcelFileToRead = new FileInputStream
                 ("C:\\Users\\user\\Desktop\\Anselm\\Hodaka\\src" +
@@ -48,7 +53,7 @@ public class AutoNumberCustomAction {
                                 ("[^0-9]", ""));
                         String value = c.replaceAll("[0-9]","").replace
                                 ("~","");
-                        System.out.println(length+" "+value);
+//                        System.out.println(length+" "+value);
                         output+= c;
                     }
 //                    System.out.print(c+" ");
@@ -57,14 +62,37 @@ public class AutoNumberCustomAction {
                 else if(cell.getCellTypeEnum() == CellType.NUMERIC)
                 {
                     int c = (int) cell.getNumericCellValue();
-//                    System.out.print(c+" ");
+                    System.out.print(c+" ");
                     output += c;
                 }
                 else{
                     //U Can Handel Boolean, Formula, Errors
                 }
             }
-//            System.out.println(output);
+            System.out.println(output);
         }
     }
+
+    @Override
+    public ActionResult doAction(IAgileSession session,
+                                 INode node,
+                                 IDataObject change) {
+        IChange changeOrder = (IChange)change;
+        try {
+            ITable affectedTable = getAffectedTable(changeOrder);
+            Iterator it = affectedTable.iterator();
+            //loop through affected Items
+            IRow row;
+            while(it.hasNext()){
+                //get agile class
+
+                //find agile class in excel
+                //parse definition for excel class
+
+                //assign description based on definition
+            }
+        } catch (APIException e) {
+            e.printStackTrace();
+        }
+        return new ActionResult(ActionResult.STRING,"Success");    }
 }
