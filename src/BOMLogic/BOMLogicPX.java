@@ -164,7 +164,7 @@ public class BOMLogicPX implements IEventAction {
             //true if zero
             if(checkZero(row)){
                 error=true;
-                e += "[BOM數量]欄位資訊不可為0!// ";
+                e += "[BOM數量]欄位資訊不可為空!若[原料/副產品]選原料數量則不可爲0！// ";
             }
             if(checkFindNum(row)){
                 error=true;
@@ -232,6 +232,7 @@ public class BOMLogicPX implements IEventAction {
         String quantity = (String)row.getValue(ItemConstants.ATT_BOM_QTY);
         String value = row.getValue(ItemConstants
                 .ATT_BOM_BOM_LIST01).toString();
+        System.out.println(value);
         return quantity.equals("") || (quantity.equals("0") && !value.equals
                 ("副產品"));
     }
