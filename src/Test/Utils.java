@@ -1,6 +1,7 @@
 package Test;
 
 import com.agile.api.*;
+import william.util.Ini;
 
 import java.util.HashMap;
 
@@ -105,5 +106,22 @@ public class Utils {
         }
     }
 
+    public static IAgileSession getAgileSession(Ini ini, String target) {
+        return getAgileSession(ini.getValue("AgileAP", "url"), ini.getValue("AgileAP", "username"), ini.getValue("AgileAP", "password"));
+    }
+
+    public static IAgileSession getAgileSession(String agileurl, String agileusr, String agilepwd) {
+        try {
+            HashMap<Integer, String> params = new HashMap();
+            params.put(AgileSessionFactory.USERNAME, agileusr);
+            params.put(AgileSessionFactory.PASSWORD, agilepwd);
+            params.put(AgileSessionFactory.URL, agileurl);
+            return AgileSessionFactory.createSessionEx(params);
+        } catch (Exception var4) {
+            System.out.println("<getAgileSession>error: " + agileusr + "/" + agilepwd + "," + agileurl);
+            var4.printStackTrace();
+            return null;
+        }
+    }
 
 }
