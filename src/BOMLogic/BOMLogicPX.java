@@ -232,7 +232,7 @@ public class BOMLogicPX implements IEventAction {
         String quantity = (String)row.getValue(ItemConstants.ATT_BOM_QTY);
         String value = row.getValue(ItemConstants
                 .ATT_BOM_BOM_LIST01).toString();
-        System.out.println(value);
+//        System.out.println(value);
         return quantity.equals("") || (quantity.equals("0") && !value.equals
                 ("副產品"));
     }
