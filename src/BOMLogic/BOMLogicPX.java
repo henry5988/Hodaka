@@ -230,7 +230,10 @@ public class BOMLogicPX implements IEventAction {
     }
     private static boolean checkZero(IRow row) throws APIException {
         String quantity = (String)row.getValue(ItemConstants.ATT_BOM_QTY);
-        return quantity.equals("0") || quantity.equals("");
+        String value = row.getValue(ItemConstants
+                .ATT_BOM_BOM_LIST01).toString();
+        return quantity.equals("") || (quantity.equals("0") && !value.equals
+                ("副產品"));
     }
     private static boolean checkFindNum(IRow row) throws APIException {
         String findNum = (String)row.getValue(ItemConstants.ATT_BOM_FIND_NUM);
