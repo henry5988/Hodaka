@@ -23,9 +23,7 @@ import static Test.Utils.getAgileSession;
 
 
 public class AutoNumberCustomAction implements ICustomAction{
-    static Ini ini = new Ini();
-    static final String EXCEL_FILE = ini.getValue("File Location",
-            "EXCEL_FILE_PATH");
+    static String EXCEL_FILE;
     private String FILE_PATH = "C:/Agile/AutoNumberCustomAction"+new
             SimpleDateFormat("yyyyMMdd_HHmm").format(Calendar.getInstance().getTime())+".txt";
     private static LogIt logger;
@@ -91,6 +89,9 @@ public class AutoNumberCustomAction implements ICustomAction{
                                  INode node,
                                  IDataObject change) {
         try {
+            Ini ini = new Ini("C:/Agile/Config.ini");
+            EXCEL_FILE = ini.getValue("File Location",
+                    "EXCEL_FILE_PATH");
             logger = new LogIt("AutoNumberCustomAction");
             logger.setLogFile(FILE_PATH);
             admin = getAgileSession(ini,"AgileAP");
@@ -98,7 +99,7 @@ public class AutoNumberCustomAction implements ICustomAction{
             e.printStackTrace();
         }
         try {
-            IChange changeOrder = (IChange) admin.getObject(ChangeConstants.CLASS_ECO,change);
+            IChange changeOrder = (IChange) admin.getObject(ChangeConstants.CLASS_ECO,change.getName());
             logger.log("Get Change as Admin:"+changeOrder);
             ITable affectedTable = getAffectedTable(changeOrder);
             Iterator it = affectedTable.iterator();
@@ -127,7 +128,7 @@ public class AutoNumberCustomAction implements ICustomAction{
             logger.log("Failure.");
             logger.log(e.getMessage());
             logger.close();
-            return new ActionResult(ActionResult.EXCEPTION,"Failure");
+            return new ActionResult(ActionResult.STRING,"Failure");
         }
         logger.close();
         return new ActionResult(ActionResult.STRING,"Success");    }
