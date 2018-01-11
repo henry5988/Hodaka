@@ -3,7 +3,6 @@ package CustomAutoNumber;
 import com.agile.api.*;
 import com.agile.px.ActionResult;
 import com.agile.px.ICustomAction;
-import com.anselm.plm.util.AUtil;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -100,27 +99,37 @@ public class AutoNumberCustomAction implements ICustomAction{
         }
         try {
             IChange changeOrder = (IChange) admin.getObject(ChangeConstants.CLASS_ECO,change);
+            logger.log("Get Change as Admin:"+changeOrder);
             ITable affectedTable = getAffectedTable(changeOrder);
             Iterator it = affectedTable.iterator();
 
             IRow row;
             IItem item;
             //loop through affected Items
+            logger.log("Affected Table:");
             while(it.hasNext()){
                 //get affected item
                 row = (IRow) it.next();
                 item = (IItem) row.getReferent();
+                logger.log("Get Item: "+item);
                 //parse definition for excel class
                 String autoNumber = getAutoNumber(item);
-                //TODO how to set autonumber
+                logger.log(1,"Generated Autonumber: "+autoNumber);
                 //assign description based on definition
-//                item.setValue(ItemConstants.ATT_TITLE_BLOCK_NUMBER,autoNumber);
-
-
+                ITable table = item.getTable(ItemConstants.TABLE_REDLINETITLEBLOCK);
+                Iterator tableIterator = table.getTableIterator();
+                IRow tableRow = (IRow) tableIterator.next();
+                logger.log(1,"Setting New Autonumber...");
+                tableRow.getCell(ItemConstants.ATT_TITLE_BLOCK_NUMBER).setValue(autoNumber);
+                logger.log(2,"Success.");
             }
         } catch (APIException e) {
-            e.printStackTrace();
+            logger.log("Failure.");
+            logger.log(e.getMessage());
+            logger.close();
+            return new ActionResult(ActionResult.EXCEPTION,"Failure");
         }
+        logger.close();
         return new ActionResult(ActionResult.STRING,"Success");    }
 
     private String getAutoNumber(IItem item) throws APIException {
@@ -163,7 +172,7 @@ public class AutoNumberCustomAction implements ICustomAction{
                 String c = cell.getStringCellValue();
                 if(c.equals("end"))break;
                 else if(c.charAt(0)=='$')autoNumber+=c.substring(1);
-                    //會不會就只有'~'
+                    //TODO 會不會就只有'~'
                 else if(c.charAt(0)=='~'){
                     //length of variable
                     //needs more checking
@@ -229,9 +238,8 @@ public class AutoNumberCustomAction implements ICustomAction{
                 }
 
             } catch (APIException e) {
-                logger.log("can't find class or something");
+                logger.log("執行span submethod時出錯");
                 logger.log(e.getMessage());
-                e.printStackTrace();
             }
             finally {
                 if (!dynamic) {
