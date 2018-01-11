@@ -11,8 +11,6 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import william.util.Ini;
 import william.util.LogIt;
-
-import javax.xml.crypto.Data;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -59,8 +57,8 @@ public class AutoNumberCustomAction implements ICustomAction{
                 {
                     String c = cell.getStringCellValue();
                     if(c.equals("end"))break;
-                    if(c.charAt(0)=='$')autoNumber+=c.substring(1);
-                    if(c.charAt(0)=='~'){
+                    else if(c.charAt(0)=='$')autoNumber+=c.substring(1);
+                    else if(c.charAt(0)=='~'){
                         //length of variable
                         int length = Integer.parseInt(c.replaceAll
                                 ("[^0-9]", ""));
@@ -69,6 +67,8 @@ public class AutoNumberCustomAction implements ICustomAction{
                                 ("~","");
 //                        System.out.println(length+" "+value);
                         autoNumber+= c;
+                    }else{
+                        autoNumber+=c;
                     }
 //                    System.out.print(c+" ");
 
@@ -98,8 +98,8 @@ public class AutoNumberCustomAction implements ICustomAction{
         } catch (Exception e) {
             e.printStackTrace();
         }
-        IChange changeOrder = (IChange)change;
         try {
+            IChange changeOrder = (IChange) admin.getObject(ChangeConstants.CLASS_ECO,change);
             ITable affectedTable = getAffectedTable(changeOrder);
             Iterator it = affectedTable.iterator();
 
@@ -115,6 +115,7 @@ public class AutoNumberCustomAction implements ICustomAction{
                 //TODO how to set autonumber
                 //assign description based on definition
 //                item.setValue(ItemConstants.ATT_TITLE_BLOCK_NUMBER,autoNumber);
+
 
             }
         } catch (APIException e) {
@@ -161,18 +162,20 @@ public class AutoNumberCustomAction implements ICustomAction{
             {
                 String c = cell.getStringCellValue();
                 if(c.equals("end"))break;
-                if(c.charAt(0)=='$')autoNumber+=c.substring(1);
-                //會不會就只有'~'
-                if(c.charAt(0)=='~'){
+                else if(c.charAt(0)=='$')autoNumber+=c.substring(1);
+                    //會不會就只有'~'
+                else if(c.charAt(0)=='~'){
                     //length of variable
                     //needs more checking
+                    //what if there are numbers in the attribute name already
                     int length = Integer.parseInt(c.replaceAll
                             ("[^0-9]", ""));
 
                     String value = c.replaceAll("[0-9]","").replace
                             ("~","");
-                    span(value,length,item);
-                    autoNumber+= c;
+                    autoNumber+= span(value,length,item,false);
+                }else{//dynamically allocate
+                    autoNumber+= span(c,-1,item,true);
                 }
 
             }
@@ -193,11 +196,11 @@ public class AutoNumberCustomAction implements ICustomAction{
         return autoNumber;
     }
 
-     /*
-        span autonumber based on length and value
-        assume all the specification is located on page three
-      */
-    private String span(String value, int length, IItem item){
+    /*
+       span autonumber based on length and value
+       assume all the specification is located on page three
+     */
+    private String span(String value, int length, IItem item, boolean dynamic){
         String toReturn = "";
         String attribute = "Page Three." + value;
         if (value.length()==0){
@@ -215,28 +218,36 @@ public class AutoNumberCustomAction implements ICustomAction{
                 if(type == DataTypeConstants.TYPE_DOUBLE || type == DataTypeConstants.TYPE_STRING) {
                     toReturn += item.getValue(attribute);
                 }else{
-                    //TODO what if dynamic list.
                     String listVal = item.getValue(attribute).toString();
                     ICell cell = item.getCell(attribute);
                     IAgileList list = (IAgileList) cell.getValue();
-                    //TODO does description have more rules. ie |
-                    toReturn += ((IAgileList)list.getChild(listVal)).getDescription();
+                    //TODO does description have more rules. ie: |
+                    if(list.getChildNodes()!=null)
+                        toReturn += ((IAgileList)list.getChild(listVal)).getDescription();
+                    else
+                        toReturn += listVal;
                 }
 
             } catch (APIException e) {
+                logger.log("can't find class or something");
+                logger.log(e.getMessage());
                 e.printStackTrace();
             }
-            //if length too short, add zeros to the front of it
-            if (toReturn.length()<=length){
-                int difference = length - toReturn.length();
-                for(int i = 0; i<difference; i++){
-                    toReturn = "0"+toReturn;
+            finally {
+                if (!dynamic) {
+                    //if length too short, add zeros to the front of it
+                    if (toReturn.length() <= length) {
+                        int difference = length - toReturn.length();
+                        for (int i = 0; i < difference; i++) {
+                            toReturn = "0" + toReturn;
+                        }
+                    } else {
+                        //if length too long, remove from behind
+                        toReturn = toReturn.substring(0, length);
+                    }
                 }
-            }else{
-                //if length too long, remove from behind
-                toReturn = toReturn.substring(0,length);
+                return toReturn;
             }
-            return toReturn;
         }
     }
 
