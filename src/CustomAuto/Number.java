@@ -24,7 +24,7 @@ import static Test.Utils.getAgileSession;
 
 public class Number implements ICustomAction{
     static String EXCEL_FILE;
-    private String FILE_PATH = "C:/Agile/Number"+new
+    private String FILE_PATH = "C:/Agile/AutoNumber"+new
             SimpleDateFormat("yyyyMMdd_HHmm").format(Calendar.getInstance().getTime())+".txt";
     private static LogIt logger;
     private IAgileSession admin;
@@ -92,14 +92,16 @@ public class Number implements ICustomAction{
             Ini ini = new Ini("C:/Agile/Config.ini");
             EXCEL_FILE = ini.getValue("File Location",
                     "EXCEL_FILE_PATH");
-            logger = new LogIt("Number");
+            logger = new LogIt("CustomAutoNumber");
             logger.setLogFile(FILE_PATH);
             admin = getAgileSession(ini,"AgileAP");
         } catch (Exception e) {
             e.printStackTrace();
         }
         try {
-            IChange changeOrder = (IChange) admin.getObject(ChangeConstants.CLASS_ECO,change.getName());
+//            IChange changeOrder = (IChange) admin.getObject(ChangeConstants.CLASS_CHANGE_ORDERS_CLASS,
+//                    change.getName());
+            IChange changeOrder = (IChange) change;
             logger.log("Get Change as Admin:"+changeOrder);
             ITable affectedTable = getAffectedTable(changeOrder);
             Iterator it = affectedTable.iterator();
@@ -130,7 +132,7 @@ public class Number implements ICustomAction{
             }
         } catch (APIException e) {
             logger.log("Failure.");
-            logger.log(e.getMessage());
+            logger.log(e);
             logger.close();
             return new ActionResult(ActionResult.STRING,"Failure");
         }
@@ -172,7 +174,7 @@ public class Number implements ICustomAction{
         XSSFCell cell;
         while(cells.hasNext()){
             cell = (XSSFCell) cells.next();
-            if (cell.getCellTypeEnum() == CellType.STRING)
+            if (cell.getCellType() == XSSFCell.CELL_TYPE_STRING)
             {
                 String c = cell.getStringCellValue();
                 if(c.equals("end"))break;
@@ -192,6 +194,7 @@ public class Number implements ICustomAction{
                             autoNumber+= span(autoNumber,length,item);
                         }else{
                             autoNumber+= span(value,length,item,false);
+                            //TODO error handling
                         }
 
                     }catch(Exception e){
@@ -202,7 +205,7 @@ public class Number implements ICustomAction{
                 }
 
             }
-            else if(cell.getCellTypeEnum() == CellType.NUMERIC)
+            else if(cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC)
             {
                 int c = (int) cell.getNumericCellValue();
                 autoNumber += c;
@@ -237,7 +240,7 @@ public class Number implements ICustomAction{
             query.setCriteria(criteria);
             ITable table = query.execute();
             if(table.size()==0){
-                return temp;
+                return temp.replaceAll(autoNumber,"");
             }
             count++;
         }
@@ -272,6 +275,7 @@ public class Number implements ICustomAction{
         } catch (APIException e) {
             logger.log("執行span submethod時出錯");
             logger.log(e.getMessage());
+            return "";
         }
         finally {
             if (!dynamic) {
