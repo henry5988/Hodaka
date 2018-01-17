@@ -115,6 +115,10 @@ public class Number implements ICustomAction{
                 logger.log("Get Item: "+item);
                 //parse definition for excel class
                 String autoNumber = getAutoNumber(item);
+                if (autoNumber.equals("")){
+                    logger.log("Cannot Find Rule for class"+item
+                            .getAgileClass()+", Skipping...");continue;
+                }
                 logger.log(1,"Generated Autonumber: "+autoNumber);
                 //assign description based on definition
                 ITable table = item.getTable(ItemConstants.TABLE_REDLINETITLEBLOCK);
@@ -158,7 +162,7 @@ public class Number implements ICustomAction{
 
      */
     private String parseExcelRule(int rowNum,XSSFSheet sheet,IItem item) {
-        if (rowNum==-1)return "Cannot Find Rule";
+        if (rowNum==-1)return "";
         String autoNumber = "";
         //Get Row
         XSSFRow row = sheet.getRow(rowNum);
@@ -178,12 +182,21 @@ public class Number implements ICustomAction{
                     //length of variable
                     //needs more checking
                     //what if there are numbers in the attribute name already
-                    int length = Integer.parseInt(c.replaceAll
-                            ("[^0-9]", ""));
+                    try {
+                        int length = Integer.parseInt(c.replaceAll
+                                ("[^0-9]", ""));
+                        String value = c.replaceAll("[0-9]","").replace
+                                ("~","");
 
-                    String value = c.replaceAll("[0-9]","").replace
-                            ("~","");
-                    autoNumber+= span(value,length,item,false);
+                        if (value.length()==0){
+                            autoNumber+= span(autoNumber,length,item);
+                        }else{
+                            autoNumber+= span(value,length,item,false);
+                        }
+
+                    }catch(Exception e){
+                        logger.log("There is no indication of length!");
+                    }
                 }else{//dynamically allocate
                     autoNumber+= span(c,-1,item,true);
                 }
@@ -200,10 +213,34 @@ public class Number implements ICustomAction{
                 //ignore null
             }
         }
-
-
-
         return autoNumber;
+    }
+
+    /*
+      example: ~4 => 0000 but if 0000 already used, increment to 0001, do
+      this until query yields no result
+     */
+    private String span(String autoNumber, int length, IItem item) throws APIException {
+        int count = 0;
+        while(true) {
+            String temp = autoNumber;
+            int countLength = String.valueOf(count).length();
+            for (int i = 0; i < length-countLength; i++) {
+                temp += 0;
+            }
+            temp+=count;
+
+            IQuery query = (IQuery) admin.createObject(IQuery.OBJECT_TYPE,
+                    item.getAgileClass().toString());
+            String criteria = "[" + ItemConstants.ATT_TITLE_BLOCK_NUMBER + "] " +
+                    "Contains'"+temp+"'";
+            query.setCriteria(criteria);
+            ITable table = query.execute();
+            if(table.size()==0){
+                return temp;
+            }
+            count++;
+        }
     }
 
     /*
@@ -213,51 +250,45 @@ public class Number implements ICustomAction{
     private String span(String value, int length, IItem item, boolean dynamic){
         String toReturn = "";
         String attribute = "Page Three." + value;
-        if (value.length()==0){
-            for(int i = 0; i<length;i++){
-                toReturn+=0;
+        IAgileClass agileClass = null;
+        try {
+            agileClass = item.getAgileClass();
+            IAttribute atr = agileClass.getAttribute(attribute);
+            int type = atr.getDataType();
+            //assumes that we can only read from lists and texts
+            if(type == DataTypeConstants.TYPE_DOUBLE || type == DataTypeConstants.TYPE_STRING) {
+                toReturn += item.getValue(attribute);
+            }else{
+                String listVal = item.getValue(attribute).toString();
+                ICell cell = item.getCell(attribute);
+                IAgileList list = (IAgileList) cell.getValue();
+                //TODO does description have more rules. ie: |
+                if(list.getChildNodes()!=null)
+                    toReturn += ((IAgileList)list.getChild(listVal)).getDescription();
+                else
+                    toReturn += listVal;
+            }
+
+        } catch (APIException e) {
+            logger.log("執行span submethod時出錯");
+            logger.log(e.getMessage());
+        }
+        finally {
+            if (!dynamic) {
+                //if length too short, add zeros to the front of it
+                if (toReturn.length() <= length) {
+                    int difference = length - toReturn.length();
+                    for (int i = 0; i < difference; i++) {
+                        toReturn = "0" + toReturn;
+                    }
+                } else {
+                    //if length too long, remove from behind
+                    toReturn = toReturn.substring(0, length);
+                }
             }
             return toReturn;
-        }else{
-            IAgileClass agileClass = null;
-            try {
-                agileClass = item.getAgileClass();
-                IAttribute atr = agileClass.getAttribute(attribute);
-                int type = atr.getDataType();
-                //assumes that we can only read from lists and texts
-                if(type == DataTypeConstants.TYPE_DOUBLE || type == DataTypeConstants.TYPE_STRING) {
-                    toReturn += item.getValue(attribute);
-                }else{
-                    String listVal = item.getValue(attribute).toString();
-                    ICell cell = item.getCell(attribute);
-                    IAgileList list = (IAgileList) cell.getValue();
-                    //TODO does description have more rules. ie: |
-                    if(list.getChildNodes()!=null)
-                        toReturn += ((IAgileList)list.getChild(listVal)).getDescription();
-                    else
-                        toReturn += listVal;
-                }
-
-            } catch (APIException e) {
-                logger.log("執行span submethod時出錯");
-                logger.log(e.getMessage());
-            }
-            finally {
-                if (!dynamic) {
-                    //if length too short, add zeros to the front of it
-                    if (toReturn.length() <= length) {
-                        int difference = length - toReturn.length();
-                        for (int i = 0; i < difference; i++) {
-                            toReturn = "0" + toReturn;
-                        }
-                    } else {
-                        //if length too long, remove from behind
-                        toReturn = toReturn.substring(0, length);
-                    }
-                }
-                return toReturn;
-            }
         }
+
     }
 
     /*
