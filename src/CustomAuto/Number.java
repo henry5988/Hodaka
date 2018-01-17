@@ -1,4 +1,4 @@
-package CustomAutoNumber;
+package CustomAuto;
 
 import com.agile.api.*;
 import com.agile.px.ActionResult;
@@ -22,9 +22,9 @@ import static Test.Utils.getAffectedTable;
 import static Test.Utils.getAgileSession;
 
 
-public class AutoNumberCustomAction implements ICustomAction{
+public class Number implements ICustomAction{
     static String EXCEL_FILE;
-    private String FILE_PATH = "C:/Agile/AutoNumberCustomAction"+new
+    private String FILE_PATH = "C:/Agile/Number"+new
             SimpleDateFormat("yyyyMMdd_HHmm").format(Calendar.getInstance().getTime())+".txt";
     private static LogIt logger;
     private IAgileSession admin;
@@ -92,7 +92,7 @@ public class AutoNumberCustomAction implements ICustomAction{
             Ini ini = new Ini("C:/Agile/Config.ini");
             EXCEL_FILE = ini.getValue("File Location",
                     "EXCEL_FILE_PATH");
-            logger = new LogIt("AutoNumberCustomAction");
+            logger = new LogIt("Number");
             logger.setLogFile(FILE_PATH);
             admin = getAgileSession(ini,"AgileAP");
         } catch (Exception e) {

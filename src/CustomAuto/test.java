@@ -1,4 +1,4 @@
-package CustomAutoNumber;
+package CustomAuto;
 
 import william.util.Ini;
 
