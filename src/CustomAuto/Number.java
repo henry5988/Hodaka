@@ -53,7 +53,7 @@ public class Number implements ICustomAction{
                 if (cell.getCellTypeEnum() == CellType.STRING)
                 {
                     String c = cell.getStringCellValue();
-                    if(c.equals("end"))break;
+                    if(c.toLowerCase().equals("end"))break;
                     else if(c.charAt(0)=='$')autoNumber+=c.substring(1);
                     else if(c.charAt(0)=='~'){
                         //length of variable
@@ -91,7 +91,7 @@ public class Number implements ICustomAction{
         try {
             Ini ini = new Ini("C:/Agile/Config.ini");
             EXCEL_FILE = ini.getValue("File Location",
-                    "EXCEL_FILE_PATH");
+                    "EXCEL_FILE_PATH_NUMBER");
             logger = new LogIt("CustomAutoNumber");
             logger.setLogFile(FILE_PATH);
             admin = getAgileSession(ini,"AgileAP");
@@ -99,6 +99,7 @@ public class Number implements ICustomAction{
             e.printStackTrace();
         }
         try {
+            //TODO admin get change
 //            IChange changeOrder = (IChange) admin.getObject(ChangeConstants.CLASS_CHANGE_ORDERS_CLASS,
 //                    change.getName());
             IChange changeOrder = (IChange) change;
@@ -117,8 +118,7 @@ public class Number implements ICustomAction{
                 //parse definition for excel class
                 String autoNumber = getAutoNumber(item);
                 if (autoNumber.equals("")){
-                    logger.log(1,"找不到"+item
-                            .getAgileClass()+"相符的規則或規則錯誤, 跳過...");continue;
+                    logger.log(1,item.getAgileClass()+"規則錯誤, 跳過...");continue;
                 }
                 logger.log(1,"依規則產生出的流水號: "+autoNumber);
                 //assign description based on definition
@@ -144,7 +144,7 @@ public class Number implements ICustomAction{
             ExcelFileToRead = new FileInputStream
                     (EXCEL_FILE);
         } catch (FileNotFoundException e) {
-
+            logger.log("找不到該檔案，請檢查Config.ini!");
         }
         XSSFWorkbook wb = null;
         try {
@@ -266,9 +266,9 @@ public class Number implements ICustomAction{
                 String listVal = item.getValue(attribute).toString();
                 ICell cell = item.getCell(attribute);
                 IAgileList list = (IAgileList) cell.getValue();
-                //TODO does description have more rules. ie: |
                 if(list.getChildNodes()!=null)
-                    toReturn += ((IAgileList)list.getChild(listVal)).getDescription();
+                    toReturn += ((IAgileList)list.getChild(listVal))
+                            .getDescription().split("\\|")[0];
                 else
                     toReturn += listVal;
             }
@@ -276,17 +276,14 @@ public class Number implements ICustomAction{
         } catch (APIException e) {
             logger.log(e.getMessage());
             return "";
+        } catch (ArrayIndexOutOfBoundsException e){
+            logger.log("List Description 欄位需要有個|符號。前面為流水號規則，後面為描述規則！");
+            return "";
         }
         if (!dynamic) {
-            //if length too short, add zeros to the front of it
-            if (toReturn.length() <= length) {
-                int difference = length - toReturn.length();
-                for (int i = 0; i < difference; i++) {
-                    toReturn = "0" + toReturn;
-                }
-            } else {
-                //if length too long, remove from behind
-                toReturn = toReturn.substring(0, length);
+            if(toReturn.length()!=length){
+                logger.log(1,"維護欄位與指定長度不一樣!");
+                return "";
             }
         }
         return toReturn;
@@ -311,6 +308,7 @@ public class Number implements ICustomAction{
             if (className.toLowerCase().equals(agileClass.toLowerCase()))return row
                     .getRowNum();
         }
+        logger.log("找不到對應的規則!跳過...");
         return -1;
     }
 }
