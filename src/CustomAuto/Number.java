@@ -28,6 +28,7 @@ public class Number implements ICustomAction{
             SimpleDateFormat("yyyyMMdd_HHmm").format(Calendar.getInstance().getTime())+".txt";
     private static LogIt logger;
     private IAgileSession admin;
+    private static int errorCount;
     public static void main(String[] args) throws IOException {
         InputStream ExcelFileToRead = new FileInputStream
                 (EXCEL_FILE);
@@ -118,6 +119,7 @@ public class Number implements ICustomAction{
                 //parse definition for excel class
                 String autoNumber = getAutoNumber(item);
                 if (autoNumber.equals("")){
+                    errorCount++;
                     logger.log(1,item.getAgileClass()+"規則錯誤, 跳過...");continue;
                 }
                 logger.log(1,"依規則產生出的流水號: "+autoNumber);
@@ -136,7 +138,9 @@ public class Number implements ICustomAction{
             return new ActionResult(ActionResult.STRING,"Failure");
         }
         logger.close();
-        return new ActionResult(ActionResult.STRING,"Success");    }
+        String result = errorCount==0?"Success":errorCount+"筆item失敗，請檢查log檔";
+        return new ActionResult(ActionResult.STRING,result);
+    }
 
     private String getAutoNumber(IItem item) throws APIException {
         InputStream ExcelFileToRead = null;
