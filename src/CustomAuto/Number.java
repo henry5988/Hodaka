@@ -109,26 +109,25 @@ public class Number implements ICustomAction{
             IRow row;
             IItem item;
             //loop through affected Items
-            logger.log("Affected Table:");
             while(it.hasNext()){
                 //get affected item
                 row = (IRow) it.next();
                 item = (IItem) row.getReferent();
-                logger.log("Get Item: "+item);
+                logger.log("物件: "+item);
                 //parse definition for excel class
                 String autoNumber = getAutoNumber(item);
                 if (autoNumber.equals("")){
-                    logger.log("Cannot Find Rule for class"+item
-                            .getAgileClass()+", Skipping...");continue;
+                    logger.log(1,"找不到"+item
+                            .getAgileClass()+"相符的規則或規則錯誤, 跳過...");continue;
                 }
-                logger.log(1,"Generated Autonumber: "+autoNumber);
+                logger.log(1,"依規則產生出的流水號: "+autoNumber);
                 //assign description based on definition
                 ITable table = item.getTable(ItemConstants.TABLE_REDLINETITLEBLOCK);
                 Iterator tableIterator = table.getTableIterator();
                 IRow tableRow = (IRow) tableIterator.next();
-                logger.log(1,"Setting New Autonumber...");
+                logger.log(1,"設定新的流水號...");
                 tableRow.getCell(ItemConstants.ATT_TITLE_BLOCK_NUMBER).setValue(autoNumber);
-                logger.log(2,"Success.");
+                logger.log(2,"流水號設定成功.");
             }
         } catch (APIException e) {
             logger.log("Failure.");
@@ -156,7 +155,8 @@ public class Number implements ICustomAction{
         XSSFSheet sheet = wb.getSheetAt(0);
         Iterator rows = sheet.rowIterator();
         //get agile class
-        String agileClass =item.getAgileClass().getAPIName();
+        String agileClass =item.getAgileClass().getName();
+        logger.log("搜索"+agileClass+"對應的規則");
         return parseExcelRule(findClassRow(agileClass,rows),sheet,item);
     }
 
@@ -179,8 +179,11 @@ public class Number implements ICustomAction{
                 String c = cell.getStringCellValue();
                 if(c.equals("end"))break;
                 else if(c.charAt(0)=='$')autoNumber+=c.substring(1);
-                    //TODO 會不會就只有'~'
                 else if(c.charAt(0)=='~'){
+                    if(c.length()==1) {
+                        logger.log(1,"規則錯誤...跳過");
+                        return "";
+                    }
                     //length of variable
                     //needs more checking
                     //what if there are numbers in the attribute name already
@@ -189,31 +192,29 @@ public class Number implements ICustomAction{
                                 ("[^0-9]", ""));
                         String value = c.replaceAll("[0-9]","").replace
                                 ("~","");
-
+                        String spanResult;
                         if (value.length()==0){
-                            autoNumber+= span(autoNumber,length,item);
+                            spanResult= span(autoNumber,length,item);
                         }else{
-                            autoNumber+= span(value,length,item,false);
-                            //TODO error handling
+                            spanResult= span(value,length,item,false);
                         }
+                        if(spanResult.equals(""))return "";
+                        autoNumber+=spanResult;
 
                     }catch(Exception e){
-                        logger.log("There is no indication of length!");
+                        logger.log(1,"沒有指定長度！跳過... ");
+                        return "";
                     }
                 }else{//dynamically allocate
-                    autoNumber+= span(c,-1,item,true);
+                    String spanResult = span(c,-1,item,true);
+                    if(spanResult.equals(""))return"";
+                    autoNumber+= spanResult;
                 }
-
             }
             else if(cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC)
             {
                 int c = (int) cell.getNumericCellValue();
                 autoNumber += c;
-
-            }
-            else{
-                //U Can Handel Boolean, Formula, Errors
-                //ignore null
             }
         }
         return autoNumber;
@@ -273,25 +274,23 @@ public class Number implements ICustomAction{
             }
 
         } catch (APIException e) {
-            logger.log("執行span submethod時出錯");
             logger.log(e.getMessage());
             return "";
         }
-        finally {
-            if (!dynamic) {
-                //if length too short, add zeros to the front of it
-                if (toReturn.length() <= length) {
-                    int difference = length - toReturn.length();
-                    for (int i = 0; i < difference; i++) {
-                        toReturn = "0" + toReturn;
-                    }
-                } else {
-                    //if length too long, remove from behind
-                    toReturn = toReturn.substring(0, length);
+        if (!dynamic) {
+            //if length too short, add zeros to the front of it
+            if (toReturn.length() <= length) {
+                int difference = length - toReturn.length();
+                for (int i = 0; i < difference; i++) {
+                    toReturn = "0" + toReturn;
                 }
+            } else {
+                //if length too long, remove from behind
+                toReturn = toReturn.substring(0, length);
             }
-            return toReturn;
         }
+        return toReturn;
+
 
     }
 
@@ -308,7 +307,9 @@ public class Number implements ICustomAction{
         {
             row=(XSSFRow) it.next();
             String className = row.getCell(0).getStringCellValue();
-            if (className.equals(agileClass))return row.getRowNum();
+//            logger.log(className+agileClass);
+            if (className.toLowerCase().equals(agileClass.toLowerCase()))return row
+                    .getRowNum();
         }
         return -1;
     }
