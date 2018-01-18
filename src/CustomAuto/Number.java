@@ -124,11 +124,13 @@ public class Number implements ICustomAction{
                 }
                 logger.log(1,"依規則產生出的流水號: "+autoNumber);
                 //assign description based on definition
-                ITable table = item.getTable(ItemConstants.TABLE_REDLINETITLEBLOCK);
-                Iterator tableIterator = table.getTableIterator();
-                IRow tableRow = (IRow) tableIterator.next();
+//                ITable table = item.getTable(ItemConstants.TABLE_REDLINETITLEBLOCK);
+//                Iterator tableIterator = table.getTableIterator();
+//                IRow tableRow = (IRow) tableIterator.next();
+
                 logger.log(1,"設定新的流水號...");
-                tableRow.getCell(ItemConstants.ATT_TITLE_BLOCK_NUMBER).setValue(autoNumber);
+                item.setValue(ItemConstants.ATT_TITLE_BLOCK_NUMBER,autoNumber);
+//                tableRow.getCell(ItemConstants.ATT_TITLE_BLOCK_NUMBER).setValue(autoNumber);
                 logger.log(2,"流水號設定成功.");
             }
         } catch (APIException e) {
