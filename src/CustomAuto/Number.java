@@ -138,7 +138,7 @@ public class Number implements ICustomAction{
             return new ActionResult(ActionResult.STRING,"Failure");
         }
         logger.close();
-        String result = errorCount==0?"Success":errorCount+"筆item失敗，請檢查log檔";
+        String result = errorCount==0?"程式執行成功":errorCount+"筆item失敗，請檢查log檔";
         return new ActionResult(ActionResult.STRING,result);
     }
 
@@ -161,13 +161,13 @@ public class Number implements ICustomAction{
         //get agile class
         String agileClass =item.getAgileClass().getName();
         logger.log("搜索"+agileClass+"對應的規則");
-        return parseExcelRule(findClassRow(agileClass,rows),sheet,item);
+        return parseRule(findClassRow(agileClass,rows),sheet,item);
     }
 
     /*
 
      */
-    private String parseExcelRule(int rowNum,XSSFSheet sheet,IItem item) {
+    private String parseRule(int rowNum, XSSFSheet sheet, IItem item) {
         if (rowNum==-1)return "";
         String autoNumber = "";
         //Get Row
@@ -207,6 +207,7 @@ public class Number implements ICustomAction{
 
                     }catch(Exception e){
                         logger.log(1,"沒有指定長度！跳過... ");
+                        e.printStackTrace();
                         return "";
                     }
                 }else{//dynamically allocate
@@ -257,7 +258,8 @@ public class Number implements ICustomAction{
      */
     private String span(String value, int length, IItem item, boolean dynamic){
         String toReturn = "";
-        String attribute = "Page Three." + value;
+        //        String attribute = "Page Three." + value;
+        String attribute = "第三頁." + value;
         IAgileClass agileClass = null;
         try {
             agileClass = item.getAgileClass();

@@ -66,13 +66,8 @@ public class Description implements ICustomAction{
                     logger.log(1,item.getAgileClass()+"規則錯誤, 跳過...");continue;
                 }
                 logger.log(1,"依規則產生出的描述: "+autoDescription);
-                //assign description based on definition
-                ITable table = item.getTable(ItemConstants.TABLE_REDLINETITLEBLOCK);
-                Iterator tableIterator = table.getTableIterator();
-                IRow tableRow = (IRow) tableIterator.next();
                 logger.log(1,"設定新的描述...");
-                tableRow.getCell(ItemConstants.ATT_TITLE_BLOCK_DESCRIPTION).setValue
-                        (autoDescription);
+                row.setValue(ChangeConstants.ATT_AFFECTED_ITEMS_ITEM_DESCRIPTION,autoDescription);
                 logger.log(2,"描述設定成功.");
             }
         } catch (APIException e) {
@@ -82,7 +77,7 @@ public class Description implements ICustomAction{
             return new ActionResult(ActionResult.STRING,"Failure");
         }
         logger.close();
-        String result = errorCount==0?"Success":errorCount+"筆item失敗，請檢查log檔";
+        String result = errorCount==0?"程式執行成功":errorCount+"筆item失敗，請檢查log檔";
         return new ActionResult(ActionResult.STRING,result);
     }
 
@@ -105,13 +100,13 @@ public class Description implements ICustomAction{
         //get agile class
         String agileClass =item.getAgileClass().getName();
         logger.log("搜索"+agileClass+"對應的規則");
-        return parseExcelRule(findClassRow(agileClass,rows),sheet,item);
+        return parseRule(findClassRow(agileClass,rows),sheet,item);
     }
 
     /*
 
      */
-    private String parseExcelRule(int rowNum,XSSFSheet sheet,IItem item) {
+    private String parseRule(int rowNum, XSSFSheet sheet, IItem item) {
         if (rowNum==-1)return "";
         String autoNumber = "";
         //Get Row
@@ -126,17 +121,17 @@ public class Description implements ICustomAction{
             {
                 String c = cell.getStringCellValue();
                 if(c.toLowerCase().equals("end"))break;
-                else if(c.charAt(0)=='$')autoNumber+=c.substring(1);
+                else if(c.charAt(0)=='$')autoNumber+=c.substring(1)+" ";
                 else{//dynamically allocate
                     String spanResult = span(c,item);
                     if(spanResult.equals(""))return"";
-                    autoNumber+= spanResult;
+                    autoNumber+= spanResult+" ";
                 }
             }
             else if(cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC)
             {
                 int c = (int) cell.getNumericCellValue();
-                autoNumber += c;
+                autoNumber += c+" ";
             }
         }
         return autoNumber;
@@ -147,7 +142,8 @@ public class Description implements ICustomAction{
      */
     private String span(String value, IItem item){
         String toReturn = "";
-        String attribute = "Page Three." + value;
+//        String attribute = "Page Three." + value;
+        String attribute = "第三頁." + value;
         IAgileClass agileClass;
         try {
             agileClass = item.getAgileClass();
@@ -156,7 +152,7 @@ public class Description implements ICustomAction{
             //assumes that we can only read from lists and texts
             if(type == DataTypeConstants.TYPE_DOUBLE || type ==
                     DataTypeConstants.TYPE_STRING) {
-                toReturn += item.getValue(attribute)+" ";
+                toReturn += item.getValue(attribute);
             }else{
                 String listVal = item.getValue(attribute).toString();
                 ICell cell = item.getCell(attribute);
@@ -173,7 +169,7 @@ public class Description implements ICustomAction{
             logger.log(e.getMessage());
             return "";
         } catch (ArrayIndexOutOfBoundsException e){
-            logger.log("List Description 欄位需要有個|符號。前面為流水號規則，後面為描述規則！");
+            logger.log(1,"List Description 欄位需要有個|符號。前面為流水號規則，後面為描述規則！");
             return "";
         }
         return toReturn;
