@@ -78,6 +78,7 @@ public class Description implements ICustomAction{
         }
         logger.close();
         String result = errorCountDescription ==0?"程式執行成功": errorCountDescription +"筆item失敗，請檢查log檔";
+        errorCountDescription = 0;
         return new ActionResult(ActionResult.STRING,result);
     }
 
@@ -100,14 +101,24 @@ public class Description implements ICustomAction{
         //get agile class
         String agileClass =item.getAgileClass().getName();
         logger.log("搜索"+agileClass+"對應的規則");
-        return parseRule(findClassRow(agileClass,rows),sheet,item);
+//        return parseRule(findClassRow(agileClass,rows),sheet,item);
+        String result = parseRule(findClassRow(agileClass,rows),sheet,item);
+        try {
+            wb.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     /*
 
      */
     private String parseRule(int rowNum, XSSFSheet sheet, IItem item) {
-        if (rowNum==-1)return "";
+        if (rowNum==-1) {
+            logger.log(1,"找不到規則！");
+            return "";
+        }
         String autoNumber = "";
         //Get Row
         XSSFRow row = sheet.getRow(rowNum);
@@ -124,7 +135,9 @@ public class Description implements ICustomAction{
                 else if(c.charAt(0)=='$')autoNumber+=c.substring(1)+" ";
                 else{//dynamically allocate
                     String spanResult = span(c,item);
-                    if(spanResult.equals(""))return"";
+                    if(spanResult.equals("error")){
+                        return"";
+                    }
                     autoNumber+= spanResult+" ";
                 }
             }
@@ -157,8 +170,10 @@ public class Description implements ICustomAction{
             }else{
                 String listVal = item.getValue(attribute).toString();
                 ICell cell = item.getCell(attribute);
-                IAgileList list = (IAgileList) cell.getValue();
+                IAgileList list = cell.getAvailableValues();
                 if(list.getChildNodes()!=null) {
+                    System.out.println(((IAgileList)list.getChild(listVal))
+                            .getDescription());
                     toReturn += ((IAgileList)list.getChild(listVal))
                             .getDescription().split("\\|")[2];
                 }
@@ -167,11 +182,11 @@ public class Description implements ICustomAction{
             }
 
         } catch (APIException e) {
-            logger.log(e.getMessage());
-            return "";
+            logger.log(1,e.getMessage());
+            return "error";
         } catch (ArrayIndexOutOfBoundsException e){
-            logger.log("List Description 欄位需要有個|符號。前面為流水號規則，後面為描述規則！");
-            return "";
+            logger.log("List Description 維護出錯");
+            return "error";
         }
         return toReturn;
 
@@ -192,8 +207,11 @@ public class Description implements ICustomAction{
             row=(XSSFRow) it.next();
             String className = row.getCell(0).getStringCellValue();
 //            logger.log(className+agileClass);
-            if (className.toLowerCase().equals(agileClass.toLowerCase()))return row
-                    .getRowNum();
+            if (className.toLowerCase().replaceAll("\\s","")
+                    .equals(agileClass.toLowerCase().replaceAll("\\s",""))) {
+                logger.log(1,"找到對應規則！");
+                return row.getRowNum();
+            }
         }
         logger.log("找不到對應的規則!跳過...");
         return -1;

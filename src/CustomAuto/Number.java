@@ -141,6 +141,7 @@ public class Number implements ICustomAction{
         }
         logger.close();
         String result = errorCountNumber ==0?"程式執行成功": errorCountNumber +"筆item失敗，請檢查log檔";
+        errorCountNumber=0;
         return new ActionResult(ActionResult.STRING,result);
     }
 
@@ -162,15 +163,24 @@ public class Number implements ICustomAction{
         Iterator rows = sheet.rowIterator();
         //get agile class
         String agileClass =item.getAgileClass().getName();
-        logger.log("搜索"+agileClass+"對應的規則");
-        return parseRule(findClassRow(agileClass,rows),sheet,item);
+        logger.log(1,"搜索"+agileClass+"對應的規則");
+        String result = parseRule(findClassRow(agileClass,rows),sheet,item);
+        try {
+            wb.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     /*
 
      */
     private String parseRule(int rowNum, XSSFSheet sheet, IItem item) {
-        if (rowNum==-1)return "";
+        if (rowNum==-1) {
+            logger.log(1,"找不到規則！");
+            return "";
+        }
         String autoNumber = "";
         //Get Row
         XSSFRow row = sheet.getRow(rowNum);
@@ -214,7 +224,7 @@ public class Number implements ICustomAction{
                     }
                 }else{//dynamically allocate
                     String spanResult = span(c,-1,item,true);
-                    if(spanResult.equals(""))return"";
+                    if(spanResult.equals("error"))return"";
                     autoNumber+= spanResult;
                 }
             }
@@ -275,7 +285,7 @@ public class Number implements ICustomAction{
                 String listVal = item.getValue(attribute).toString();
                 ICell cell = item.getCell(attribute);
                 IAgileList list = (IAgileList) cell.getValue();
-                if(list.getChildNodes()!=null)
+                if(!dynamic)
                     toReturn += ((IAgileList)list.getChild(listVal))
                             .getDescription().split("\\|")[1];
                 else
@@ -284,15 +294,15 @@ public class Number implements ICustomAction{
 
         } catch (APIException e) {
             logger.log(e.getMessage());
-            return "";
+            return "error";
         } catch (ArrayIndexOutOfBoundsException e){
-            logger.log("List Description 欄位需要有個|符號。前面為流水號規則，後面為描述規則！");
-            return "";
+            logger.log("List Description 維護出錯");
+            return "error";
         }
         if (!dynamic) {
             if(toReturn.length()!=length){
                 logger.log(1,"維護欄位與指定長度不一樣!");
-                return "";
+                return "error";
             }
         }
         return toReturn;
@@ -314,8 +324,9 @@ public class Number implements ICustomAction{
             row=(XSSFRow) it.next();
             String className = row.getCell(0).getStringCellValue();
 //            logger.log(className+agileClass);
-            if (className.toLowerCase().equals(agileClass.toLowerCase()))return row
-                    .getRowNum();
+            if (className.toLowerCase().replaceAll("\\s","")
+                    .equals(agileClass.toLowerCase().replaceAll("\\s","")))
+                return row.getRowNum();
         }
         logger.log("找不到對應的規則!跳過...");
         return -1;
