@@ -46,11 +46,14 @@ public class test {
 //            a += 0;
 //        }
 //        System.out.println(a);
-        String a = "aaabbb";
-        String aa = a.split("\\|")[0];
+//        String a = "aaabbb";
+//        String aa = a.split("\\|")[0];
 //        String bb = a.split("\\|")[1];
-        System.out.println(aa);
+//        System.out.println(aa);
 //        System.out.println(bb);
+          String a = "a b c";
+          a=a.replaceAll("\\s","");
+        System.out.println(a);
 
 
     }

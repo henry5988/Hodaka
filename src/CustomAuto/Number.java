@@ -28,7 +28,7 @@ public class Number implements ICustomAction{
             SimpleDateFormat("yyyyMMdd_HHmm").format(Calendar.getInstance().getTime())+".txt";
     private static LogIt logger;
     private IAgileSession admin;
-    private static int errorCount;
+    private static int errorCountNumber;
     public static void main(String[] args) throws IOException {
         InputStream ExcelFileToRead = new FileInputStream
                 (EXCEL_FILE);
@@ -119,7 +119,7 @@ public class Number implements ICustomAction{
                 //parse definition for excel class
                 String autoNumber = getAutoNumber(item);
                 if (autoNumber.equals("")){
-                    errorCount++;
+                    errorCountNumber++;
                     logger.log(1,item.getAgileClass()+"規則錯誤, 跳過...");continue;
                 }
                 logger.log(1,"依規則產生出的流水號: "+autoNumber);
@@ -140,7 +140,7 @@ public class Number implements ICustomAction{
             return new ActionResult(ActionResult.STRING,"Failure");
         }
         logger.close();
-        String result = errorCount==0?"程式執行成功":errorCount+"筆item失敗，請檢查log檔";
+        String result = errorCountNumber ==0?"程式執行成功": errorCountNumber +"筆item失敗，請檢查log檔";
         return new ActionResult(ActionResult.STRING,result);
     }
 
@@ -262,7 +262,8 @@ public class Number implements ICustomAction{
         String toReturn = "";
         //        String attribute = "Page Three." + value;
         String attribute = "第三頁." + value;
-        IAgileClass agileClass = null;
+        attribute = attribute.replaceAll("\\s","");
+        IAgileClass agileClass;
         try {
             agileClass = item.getAgileClass();
             IAttribute atr = agileClass.getAttribute(attribute);
@@ -285,7 +286,7 @@ public class Number implements ICustomAction{
             logger.log(e.getMessage());
             return "";
         } catch (ArrayIndexOutOfBoundsException e){
-            logger.log("List Description 欄位需要有個|符號。前面為描述規則，後面為流水號規則！");
+            logger.log("List Description 欄位需要有個|符號。前面為流水號規則，後面為描述規則！");
             return "";
         }
         if (!dynamic) {

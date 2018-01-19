@@ -26,7 +26,7 @@ public class Description implements ICustomAction{
     private String FILE_PATH = "C:/Agile/Log/AutoDescription"+new
             SimpleDateFormat("yyyyMMdd_HHmm").format(Calendar.getInstance().getTime())+".txt";
     private static LogIt logger;
-    private static int errorCount;
+    private static int errorCountDescription;
     private IAgileSession admin;
     @Override
     public ActionResult doAction(IAgileSession session,
@@ -62,7 +62,7 @@ public class Description implements ICustomAction{
                 //parse definition for excel class
                 String autoDescription = getAutoDescription(item);
                 if (autoDescription.equals("")){
-                    errorCount++;
+                    errorCountDescription++;
                     logger.log(1,item.getAgileClass()+"規則錯誤, 跳過...");continue;
                 }
                 logger.log(1,"依規則產生出的描述: "+autoDescription);
@@ -77,7 +77,7 @@ public class Description implements ICustomAction{
             return new ActionResult(ActionResult.STRING,"Failure");
         }
         logger.close();
-        String result = errorCount==0?"程式執行成功":errorCount+"筆item失敗，請檢查log檔";
+        String result = errorCountDescription ==0?"程式執行成功": errorCountDescription +"筆item失敗，請檢查log檔";
         return new ActionResult(ActionResult.STRING,result);
     }
 
@@ -144,6 +144,7 @@ public class Description implements ICustomAction{
         String toReturn = "";
 //        String attribute = "Page Three." + value;
         String attribute = "第三頁." + value;
+        attribute = attribute.replaceAll("\\s","");
         IAgileClass agileClass;
         try {
             agileClass = item.getAgileClass();
@@ -159,7 +160,7 @@ public class Description implements ICustomAction{
                 IAgileList list = (IAgileList) cell.getValue();
                 if(list.getChildNodes()!=null) {
                     toReturn += ((IAgileList)list.getChild(listVal))
-                            .getDescription().split("\\|")[0];
+                            .getDescription().split("\\|")[2];
                 }
                 else
                     toReturn += listVal;
@@ -169,7 +170,7 @@ public class Description implements ICustomAction{
             logger.log(e.getMessage());
             return "";
         } catch (ArrayIndexOutOfBoundsException e){
-            logger.log("List Description 欄位需要有個|符號。前面為描述規則，後面為流水號規則！");
+            logger.log("List Description 欄位需要有個|符號。前面為流水號規則，後面為描述規則！");
             return "";
         }
         return toReturn;
