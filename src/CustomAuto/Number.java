@@ -24,7 +24,7 @@ import static Test.Utils.getAgileSession;
 
 public class Number implements ICustomAction{
     static String EXCEL_FILE;
-    private String FILE_PATH = "C:/Agile/AutoNumber"+new
+    private String FILE_PATH = "C:/Agile/Log/AutoNumber"+new
             SimpleDateFormat("yyyyMMdd_HHmm").format(Calendar.getInstance().getTime())+".txt";
     private static LogIt logger;
     private IAgileSession admin;
@@ -276,7 +276,7 @@ public class Number implements ICustomAction{
                 IAgileList list = (IAgileList) cell.getValue();
                 if(list.getChildNodes()!=null)
                     toReturn += ((IAgileList)list.getChild(listVal))
-                            .getDescription().split("\\|")[0];
+                            .getDescription().split("\\|")[1];
                 else
                     toReturn += listVal;
             }
@@ -285,7 +285,7 @@ public class Number implements ICustomAction{
             logger.log(e.getMessage());
             return "";
         } catch (ArrayIndexOutOfBoundsException e){
-            logger.log("List Description 欄位需要有個|符號。前面為流水號規則，後面為描述規則！");
+            logger.log("List Description 欄位需要有個|符號。前面為描述規則，後面為流水號規則！");
             return "";
         }
         if (!dynamic) {

@@ -23,7 +23,7 @@ import static Test.Utils.getAgileSession;
 
 public class Description implements ICustomAction{
     static String EXCEL_FILE;
-    private String FILE_PATH = "C:/Agile/AutoDescription"+new
+    private String FILE_PATH = "C:/Agile/Log/AutoDescription"+new
             SimpleDateFormat("yyyyMMdd_HHmm").format(Calendar.getInstance().getTime())+".txt";
     private static LogIt logger;
     private static int errorCount;
@@ -159,7 +159,7 @@ public class Description implements ICustomAction{
                 IAgileList list = (IAgileList) cell.getValue();
                 if(list.getChildNodes()!=null) {
                     toReturn += ((IAgileList)list.getChild(listVal))
-                            .getDescription().split("\\|")[1];
+                            .getDescription().split("\\|")[0];
                 }
                 else
                     toReturn += listVal;
@@ -169,7 +169,7 @@ public class Description implements ICustomAction{
             logger.log(e.getMessage());
             return "";
         } catch (ArrayIndexOutOfBoundsException e){
-            logger.log(1,"List Description 欄位需要有個|符號。前面為流水號規則，後面為描述規則！");
+            logger.log("List Description 欄位需要有個|符號。前面為描述規則，後面為流水號規則！");
             return "";
         }
         return toReturn;
