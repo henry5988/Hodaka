@@ -41,19 +41,11 @@ public class Utils {
         System.out.println("Logged in user: " + userName);
         return userName;
     }
-    public static IChange getECO(IAgileSession session, String changeNum)
+    public static IChange getChange(IAgileSession session, String changeNum)
             throws APIException{
         IChange change;
-        change = (IChange) session.getObject(ChangeConstants.CLASS_ECO,changeNum);
+        change = (IChange) session.getObject(IChange.OBJECT_TYPE,changeNum);
         System.out.println("GET ECO CHANGE: "+change.getName());
-        return change;
-    }
-    public static IChange getECR(IAgileSession session, String changeNum)
-            throws APIException{
-        IChange change;
-        change = (IChange) session.getObject(ChangeConstants.CLASS_ECR,
-                changeNum);
-        System.out.println("GET ECR CHANGE: "+change.getName());
         return change;
     }
 
@@ -107,7 +99,8 @@ public class Utils {
     }
 
     public static IAgileSession getAgileSession(Ini ini, String target) {
-        return getAgileSession(ini.getValue("AgileAP", "url"), ini.getValue("AgileAP", "username"), ini.getValue("AgileAP", "password"));
+        return getAgileSession(ini.getValue(target, "url"), ini.getValue
+                (target, "username"), ini.getValue(target, "password"));
     }
 
     public static IAgileSession getAgileSession(String agileurl, String agileusr, String agilepwd) {
