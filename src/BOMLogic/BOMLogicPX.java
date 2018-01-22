@@ -21,7 +21,7 @@ public class BOMLogicPX implements IEventAction {
     private static boolean problem;
     private String FILE_PATH = "C:/Agile/BomLogic"+new SimpleDateFormat("yyyyMMdd_HHmm").format(Calendar.getInstance().getTime())+".txt";
     private final String INI_FILE_PATH = "C:/Agile/Config.ini";
-    private IAgileSession admin;
+    private static IAgileSession admin;
     @Override
     public EventActionResult doAction(IAgileSession session, INode actionNode, IEventInfo event) {
         try {
@@ -170,6 +170,10 @@ public class BOMLogicPX implements IEventAction {
                 error=true;
                 e += "[Find Num]格式必須為四碼 ";
             }
+            if(checkFactory(row)){
+                error=true;
+                e += "對應廠區沒開啓!";
+            }
             if (error){
                 problem=true;
                 logger.log(level,e);
@@ -263,6 +267,38 @@ public class BOMLogicPX implements IEventAction {
             }
         }
         return true;
+    }
+    private static boolean checkFactory(IRow row) throws APIException {
+        IItem item = (IItem) row.getReferent();
+        String factory = item.getValue(ItemConstants.ATT_PAGE_THREE_LIST04).toString();
+        String val = item.getValue(ItemConstants.ATT_PAGE_THREE_LIST02)
+                .toString();
+        IItem full = (IItem) admin.getObject(ItemConstants.CLASS_PART, val);
+        String th1 = full.getValue(ItemConstants.ATT_PAGE_TWO_LIST04).toString();
+        String th2 = full.getValue(ItemConstants.ATT_PAGE_TWO_LIST05)
+                .toString();
+        String th3 = full.getValue(ItemConstants.ATT_PAGE_TWO_LIST06)
+                .toString();
+        String thh = full.getValue(ItemConstants.ATT_PAGE_TWO_LIST07)
+                .toString();
+        System.out.println("printing values");
+        System.out.println(th1);
+        System.out.println(th2);
+        System.out.println(th3);
+        System.out.println(thh);
+        switch (factory) {
+            case "TH1":
+                return th1.toLowerCase().equals("no");
+            case "TH2":
+                return th2.toLowerCase().equals("no");
+            case "TH3":
+                return th3.toLowerCase().equals("no");
+            case "THH":
+                return thh.toLowerCase().equals("no");
+            default:
+                logger.log("did not find matching value");
+                return true;
+        }
     }
     private static boolean checkType(String bomNumber) {
         //2 是原物料 5 是回收料
