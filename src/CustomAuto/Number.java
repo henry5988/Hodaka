@@ -165,11 +165,6 @@ public class Number implements ICustomAction{
         String agileClass =item.getAgileClass().getName();
         logger.log(1,"搜索"+agileClass+"對應的規則");
         String result = parseRule(findClassRow(agileClass,rows),sheet,item);
-        try {
-            wb.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         return result;
     }
 
@@ -230,6 +225,7 @@ public class Number implements ICustomAction{
             }
             else if(cell.getCellType() == XSSFCell.CELL_TYPE_NUMERIC)
             {
+                //欄位名稱最好不要有存數字
                 int c = (int) cell.getNumericCellValue();
                 autoNumber += c;
             }
@@ -275,14 +271,16 @@ public class Number implements ICustomAction{
         attribute = attribute.replaceAll("\\s","");
         IAgileClass agileClass;
         try {
+            ITable table = item.getTable(ItemConstants.TABLE_REDLINEPAGETHREE);
+            IRow row = (IRow) table.iterator().next();
             agileClass = item.getAgileClass();
             IAttribute atr = agileClass.getAttribute(attribute);
             int type = atr.getDataType();
             //assumes that we can only read from lists and texts
             if(type == DataTypeConstants.TYPE_DOUBLE || type == DataTypeConstants.TYPE_STRING) {
-                toReturn += item.getValue(attribute);
+                toReturn += row.getValue(attribute);
             }else{
-                String listVal = item.getValue(attribute).toString();
+                String listVal = row.getValue(attribute).toString();
                 ICell cell = item.getCell(attribute);
                 IAgileList list = (IAgileList) cell.getValue();
                 if(!dynamic)
@@ -332,4 +330,3 @@ public class Number implements ICustomAction{
         return -1;
     }
 }
-// subclass name probably can't be found due to chinese character vs apiname

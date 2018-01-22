@@ -103,11 +103,6 @@ public class Description implements ICustomAction{
         logger.log("搜索"+agileClass+"對應的規則");
 //        return parseRule(findClassRow(agileClass,rows),sheet,item);
         String result = parseRule(findClassRow(agileClass,rows),sheet,item);
-        try {
-            wb.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         return result;
     }
 
@@ -160,15 +155,17 @@ public class Description implements ICustomAction{
         attribute = attribute.replaceAll("\\s","");
         IAgileClass agileClass;
         try {
+            ITable table = item.getTable(ItemConstants.TABLE_REDLINEPAGETHREE);
+            IRow row = (IRow) table.iterator().next();
             agileClass = item.getAgileClass();
             IAttribute atr = agileClass.getAttribute(attribute);
             int type = atr.getDataType();
             //assumes that we can only read from lists and texts
             if(type == DataTypeConstants.TYPE_DOUBLE || type ==
                     DataTypeConstants.TYPE_STRING) {
-                toReturn += item.getValue(attribute);
+                toReturn += row.getValue(attribute);
             }else{
-                String listVal = item.getValue(attribute).toString();
+                String listVal = row.getValue(attribute).toString();
                 ICell cell = item.getCell(attribute);
                 IAgileList list = cell.getAvailableValues();
                 if(list.getChildNodes()!=null) {
