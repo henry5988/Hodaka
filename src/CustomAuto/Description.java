@@ -101,9 +101,21 @@ public class Description implements ICustomAction{
         //get agile class
         String agileClass =item.getAgileClass().getName();
         logger.log("搜索"+agileClass+"對應的規則");
+        //special case for HODAKA
+        if(agileClass.equals("配方"))return getProductDescription(item);
 //        return parseRule(findClassRow(agileClass,rows),sheet,item);
         String result = parseRule(findClassRow(agileClass,rows),sheet,item);
         return result;
+    }
+
+    private String getProductDescription(IItem item) {
+        try {
+            IItem prod = (IItem) item.getCell("第三頁.產品號碼").getReferent();
+            return prod.getValue(ItemConstants.ATT_TITLE_BLOCK_DESCRIPTION).toString();
+        } catch (APIException e) {
+            logger.log("產品號碼 get 失敗");
+            return "";
+        }
     }
 
     /*
