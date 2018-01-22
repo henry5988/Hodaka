@@ -1,5 +1,5 @@
 # Hodaka
-First assignment back in Anselm Inc.
+穗高客制程式.
 
 ## Program One：BOMLogic
 
@@ -11,9 +11,10 @@ First assignment back in Anselm Inc.
 | 4 | 每筆組成的[BOM單位]欄位不得為空      | 穗高配方維護作業規範 |
 | 5 | 每筆副產品組成的[BOM數量]欄位資訊不可為空 其他不可為0      | 穗高配方維護作業規範 |
 | 6 | 每筆組成的[Find Num]格式必須為四碼(ex. 0010, 0020, 0100…)| 穗高配方維護作業規範 |
-| 7 | 至少包含一筆原料，且數量不得為0	      | EBS整合需求 |
-| 8 | 主單位/次單位都是kg/pc BOM單位則只能為kg/pc	      | EBS整合需求 |
-| 9 | 主單位/次單位都是kg or PC 標準單位轉換率只能是1      | EBS整合需求 |
+| 7 | 配方廠區須在產品號碼對應廠區啓用|穗高配方維護作業規範|
+| 8 | 至少包含一筆原料，且數量不得為0	      | EBS整合需求 |
+| 9 | 主單位/次單位都是kg/pc BOM單位則只能為kg/pc	      | EBS整合需求 |
+| 10 | 主單位/次單位都是kg or PC 標準單位轉換率只能是1      | EBS整合需求 |
 
 ## Program Two：AutoAddBOM
 透過變更單自動將配方料號放至成品料號BOM頁籤中並發行  
@@ -24,6 +25,10 @@ First assignment back in Anselm Inc.
 ## Program Three: AutoRevision
 自動更新revision number
 
-## Program Four: AutoNumberCustomAction  
+## Program Four: AutoNumber
 
 自動依Excel檔需求建立流水號
+
+## Program Five: AutoDescription
+
+自動依Excel檔需求建立描述
