@@ -100,14 +100,11 @@ public class Number implements ICustomAction{
             e.printStackTrace();
         }
         try {
-            //TODO admin get change
             IChange changeOrder = (IChange) admin.getObject(IChange.OBJECT_TYPE,
                     change.getName());
-//            IChange changeOrder = (IChange) change;
             logger.log("Get Change as Admin:"+changeOrder);
             ITable affectedTable = getAffectedTable(changeOrder);
             Iterator it = affectedTable.iterator();
-
             IRow row;
             IItem item;
             //loop through affected Items
@@ -124,13 +121,8 @@ public class Number implements ICustomAction{
                 }
                 logger.log(1,"依規則產生出的流水號: "+autoNumber);
                 //assign description based on definition
-//                ITable table = item.getTable(ItemConstants.TABLE_REDLINETITLEBLOCK);
-//                Iterator tableIterator = table.getTableIterator();
-//                IRow tableRow = (IRow) tableIterator.next();
-
                 logger.log(1,"設定新的流水號...");
                 item.setValue(ItemConstants.ATT_TITLE_BLOCK_NUMBER,autoNumber);
-//                tableRow.getCell(ItemConstants.ATT_TITLE_BLOCK_NUMBER).setValue(autoNumber);
                 logger.log(2,"流水號設定成功.");
             }
         } catch (APIException e) {
@@ -154,18 +146,15 @@ public class Number implements ICustomAction{
             logger.log("找不到該檔案，請檢查Config.ini!");
         }
         XSSFWorkbook wb = null;
-        try {
+            try {
             wb = new XSSFWorkbook(ExcelFileToRead);
-        } catch (IOException e) {
-
-        }
+        } catch (IOException e) {}
         XSSFSheet sheet = wb.getSheetAt(0);
         Iterator rows = sheet.rowIterator();
         //get agile class
         String agileClass =item.getAgileClass().getName();
         logger.log(1,"搜索"+agileClass+"對應的規則");
-        String result = parseRule(findClassRow(agileClass,rows),sheet,item);
-        return result;
+        return parseRule(findClassRow(agileClass,rows),sheet,item);
     }
 
     /*
@@ -316,7 +305,6 @@ public class Number implements ICustomAction{
         XSSFRow row;
         //Skip first row
         it.next();
-
         while (it.hasNext())
         {
             row=(XSSFRow) it.next();

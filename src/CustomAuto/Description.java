@@ -103,9 +103,7 @@ public class Description implements ICustomAction{
         logger.log("搜索"+agileClass+"對應的規則");
         //special case for HODAKA
         if(agileClass.equals("配方"))return getProductDescription(item);
-//        return parseRule(findClassRow(agileClass,rows),sheet,item);
-        String result = parseRule(findClassRow(agileClass,rows),sheet,item);
-        return result;
+        return parseRule(findClassRow(agileClass,rows),sheet,item);
     }
 
     private String getProductDescription(IItem item) {
