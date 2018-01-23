@@ -18,8 +18,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Iterator;
 
-import static Test.Utils.getAffectedTable;
-import static Test.Utils.getAgileSession;
+import static common.Utils.getAffectedTable;
+import static common.Utils.getAgileSession;
 
 
 public class Number implements ICustomAction{

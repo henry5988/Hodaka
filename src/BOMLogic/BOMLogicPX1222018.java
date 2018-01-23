@@ -16,7 +16,7 @@ import java.util.Iterator;
 /**
  * Created by William Huang on 10/11/2017.
  */
-public class BOMLogicPX implements IEventAction {
+public class BOMLogicPX1222018 implements IEventAction {
     private static LogIt logger;
     private static boolean problem;
     private String FILE_PATH = "C:/Agile/BomLogic"+new SimpleDateFormat("yyyyMMdd_HHmm").format(Calendar.getInstance().getTime())+".txt";
@@ -25,7 +25,7 @@ public class BOMLogicPX implements IEventAction {
     @Override
     public EventActionResult doAction(IAgileSession session, INode actionNode, IEventInfo event) {
         try {
-            logger = new LogIt("BOMLogic");
+            logger = new LogIt("BOMLogicEventAction");
             logger.setLogFile(FILE_PATH);
             Ini ini = new Ini(INI_FILE_PATH);
             admin = AUtil.getAgileSession(ini, "AgileAP");
@@ -52,6 +52,10 @@ public class BOMLogicPX implements IEventAction {
                 IRow row = (IRow) it.next();
                 IItem item = (IItem) row.getReferent();
                 logger.log(item.getName());
+                if(checkFactory(row)){
+                    problem=true;
+                    logger.log("對應廠區沒開啓!");
+                }
                 getBOM(item, 1);
             }
             if (problem) {
@@ -170,10 +174,6 @@ public class BOMLogicPX implements IEventAction {
                 error=true;
                 e += "[Find Num]格式必須為四碼 ";
             }
-            if(checkFactory(row)){
-                error=true;
-                e += "對應廠區沒開啓!";
-            }
             if (error){
                 problem=true;
                 logger.log(level,e);
@@ -281,11 +281,6 @@ public class BOMLogicPX implements IEventAction {
                 .toString();
         String thh = full.getValue(ItemConstants.ATT_PAGE_TWO_LIST07)
                 .toString();
-        System.out.println("printing values");
-        System.out.println(th1);
-        System.out.println(th2);
-        System.out.println(th3);
-        System.out.println(thh);
         switch (factory) {
             case "TH1":
                 return th1.toLowerCase().equals("no");

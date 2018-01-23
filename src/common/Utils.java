@@ -1,4 +1,4 @@
-package Test;
+package common;
 
 import com.agile.api.*;
 import william.util.Ini;

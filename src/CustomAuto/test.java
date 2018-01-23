@@ -5,7 +5,7 @@ import william.util.Ini;
 
 import java.util.Iterator;
 
-import static Test.Utils.login;
+import static common.Utils.*;
 
 public class test {
     static Ini ini = new Ini();
@@ -21,7 +21,26 @@ public class test {
 //        int length = Integer.parseInt(c.replaceAll
 //                ("[^0-9]", ""));
 //        System.out.println(length);
-//        IAgileSession session = login();
+        IAgileSession session = login();
+        IChange change = (IChange) session.getObject(IChange.OBJECT_TYPE,
+                "BOM-00000377");
+        ITable table = getAffectedTable(change);
+        System.out.println(table.size());
+        Iterator it = table.iterator();
+        while(it.hasNext()){
+            IRow row = (IRow) it.next();
+            IItem item = (IItem) row.getReferent();
+            item.setRevision(change);
+            ITable tab = item.getTable(ItemConstants.TABLE_REDLINEPAGETHREE);
+
+            IAttribute[] att = tab.getAttributes();
+            for(IAttribute atts:att)
+                System.out.println(atts);
+
+        }
+
+
+
 //        IQuery query = (IQuery) session.createObject(IQuery.OBJECT_TYPE,
 //                "10CPU");
 //        String criteria = "["+ ItemConstants.ATT_TITLE_BLOCK_NUMBER+"] " +
@@ -51,10 +70,15 @@ public class test {
 //        String bb = a.split("\\|")[1];
 //        System.out.println(aa);
 //        System.out.println(bb);
-          String a = "a b c";
-          a=a.replaceAll("\\s","");
-        System.out.println(a);
+//          String a = "a b c";
+//          a=a.replaceAll("\\s","");
+//        System.out.println(a);
 
 
+    }
+    public static void a(){
+    }
+    public void b(){
+        a();
     }
 }
