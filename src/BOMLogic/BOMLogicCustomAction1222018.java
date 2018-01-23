@@ -53,10 +53,6 @@ public class BOMLogicCustomAction1222018 implements ICustomAction {
                 IRow row = (IRow) it.next();
                 IItem item = (IItem) row.getReferent();
                 logger.log(item.getName());
-                if(checkFactory(row)){
-                    problem=true;
-                    logger.log(1,"對應廠區沒開啓!");
-                }
                 getBOM(item, 1);
             }
             if (problem) {
@@ -156,6 +152,12 @@ public class BOMLogicCustomAction1222018 implements ICustomAction {
                 error=true;
                 e += "[Find Num]格式必須為四碼 ";
             }
+            String factory = item.getValue(ItemConstants
+                    .ATT_PAGE_THREE_LIST04).toString();
+            if(checkFactory(row,factory)){
+                error=true;
+                e+= "對應廠區沒開啓!";
+            }
             if (error){
                 problem=true;
                 logger.log(level,e);
@@ -250,18 +252,15 @@ public class BOMLogicCustomAction1222018 implements ICustomAction {
         return true;
     }
 
-    private static boolean checkFactory(IRow row) throws APIException {
+    private static boolean checkFactory(IRow row, String factory) throws
+            APIException {
         IItem item = (IItem) row.getReferent();
-        String factory = item.getValue(ItemConstants.ATT_PAGE_THREE_LIST04).toString();
-        String val = item.getValue(ItemConstants.ATT_PAGE_THREE_LIST02)
+        String th1 = item.getValue(ItemConstants.ATT_PAGE_TWO_LIST04).toString();
+        String th2 = item.getValue(ItemConstants.ATT_PAGE_TWO_LIST05)
                 .toString();
-        IItem full = (IItem) admin.getObject(ItemConstants.CLASS_PART, val);
-        String th1 = full.getValue(ItemConstants.ATT_PAGE_TWO_LIST04).toString();
-        String th2 = full.getValue(ItemConstants.ATT_PAGE_TWO_LIST05)
+        String th3 = item.getValue(ItemConstants.ATT_PAGE_TWO_LIST06)
                 .toString();
-        String th3 = full.getValue(ItemConstants.ATT_PAGE_TWO_LIST06)
-                .toString();
-        String thh = full.getValue(ItemConstants.ATT_PAGE_TWO_LIST07)
+        String thh = item.getValue(ItemConstants.ATT_PAGE_TWO_LIST07)
                 .toString();
         switch (factory) {
             case "TH1":
