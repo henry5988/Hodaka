@@ -101,9 +101,9 @@ public class Number implements ICustomAction{
         }
         try {
             //TODO admin get change
-//            IChange changeOrder = (IChange) admin.getObject(ChangeConstants.CLASS_CHANGE_ORDERS_CLASS,
-//                    change.getName());
-            IChange changeOrder = (IChange) change;
+            IChange changeOrder = (IChange) admin.getObject(IChange.OBJECT_TYPE,
+                    change.getName());
+//            IChange changeOrder = (IChange) change;
             logger.log("Get Change as Admin:"+changeOrder);
             ITable affectedTable = getAffectedTable(changeOrder);
             Iterator it = affectedTable.iterator();
@@ -209,7 +209,7 @@ public class Number implements ICustomAction{
                         }else{
                             spanResult= span(value,length,item,false);
                         }
-                        if(spanResult.equals(""))return "";
+                        if(spanResult.equals("error"))return "";
                         autoNumber+=spanResult;
 
                     }catch(Exception e){
