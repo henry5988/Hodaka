@@ -105,7 +105,7 @@ public class BOMLogicCustomAction1222018 implements ICustomAction {
         ITable   table = item.getTable(ItemConstants.TABLE_REDLINEBOM);
         Iterator it    = table.iterator();
         Iterator it2   = table.iterator();
-        boolean error = false;
+        boolean error;
         int count=0;
         //check empty
         if(it.hasNext()&&!checkOrig(it2)){
@@ -152,9 +152,7 @@ public class BOMLogicCustomAction1222018 implements ICustomAction {
                 error=true;
                 e += "[Find Num]格式必須為四碼 ";
             }
-            String factory = item.getValue(ItemConstants
-                    .ATT_PAGE_THREE_LIST04).toString();
-            if(checkFactory(row,factory)){
+            if(checkFactory(row,item)){
                 error=true;
                 e+= "對應廠區沒開啓!";
             }
@@ -252,8 +250,12 @@ public class BOMLogicCustomAction1222018 implements ICustomAction {
         return true;
     }
 
-    private static boolean checkFactory(IRow row, String factory) throws
+    private static boolean checkFactory(IRow row, IItem part) throws
             APIException {
+        ITable table = part.getTable(ItemConstants.TABLE_REDLINEPAGETHREE);
+        IRow row2 = (IRow) table.iterator().next();
+        String factory = row2.getValue(ItemConstants
+                .ATT_PAGE_THREE_LIST04).toString();
         IItem item = (IItem) row.getReferent();
         String th1 = item.getValue(ItemConstants.ATT_PAGE_TWO_LIST04).toString();
         String th2 = item.getValue(ItemConstants.ATT_PAGE_TWO_LIST05)
