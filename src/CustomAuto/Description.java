@@ -44,9 +44,9 @@ public class Description implements ICustomAction{
         }
         try {
             //TODO admin get change
-//            IChange changeOrder = (IChange) admin.getObject(ChangeConstants.CLASS_CHANGE_ORDERS_CLASS,
-//                    change.getName());
-            IChange changeOrder = (IChange) change;
+            IChange changeOrder = (IChange) admin.getObject(IChange.OBJECT_TYPE,
+                    change.getName());
+//            IChange changeOrder = (IChange) change;
             logger.log("Get Change as Admin:"+changeOrder);
             ITable affectedTable = getAffectedTable(changeOrder);
             Iterator it = affectedTable.iterator();
@@ -181,8 +181,6 @@ public class Description implements ICustomAction{
                 ICell cell = item.getCell(attribute);
                 IAgileList list = cell.getAvailableValues();
                 if(list.getChildNodes()!=null) {
-                    System.out.println(((IAgileList)list.getChild(listVal))
-                            .getDescription());
                     toReturn += ((IAgileList)list.getChild(listVal))
                             .getDescription().split("\\|")[2];
                 }
