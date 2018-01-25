@@ -28,10 +28,9 @@ public class Description implements ICustomAction{
     private static LogIt logger;
     private static int errorCountDescription;
     private IAgileSession admin;
-    @Override
-    public ActionResult doAction(IAgileSession session,
-                                 INode node,
-                                 IDataObject change) {
+    private IChange changeOrder;
+
+    public Description(){
         try {
             Ini ini = new Ini("C:/Agile/Config.ini");
             EXCEL_FILE = ini.getValue("File Location",
@@ -42,9 +41,28 @@ public class Description implements ICustomAction{
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    public int getErrorCount(){
+        return errorCountDescription;
+    }
+
+    public void resetCount() {
+        errorCountDescription = 0;
+    }
+
+    @Override
+    public ActionResult doAction(IAgileSession session,
+                                 INode node,
+                                 IDataObject change) {
+        action((IChange) change);
+        String result = errorCountDescription ==0?"程式執行成功": errorCountDescription +"筆item失敗，請檢查log檔";
+        resetCount();
+        return new ActionResult(ActionResult.STRING,result);
+    }
+
+    public void action(IChange change) {
         try {
-            //TODO admin get change
-            IChange changeOrder = (IChange) admin.getObject(IChange.OBJECT_TYPE,
+            changeOrder = (IChange) admin.getObject(IChange.OBJECT_TYPE,
                     change.getName());
 //            IChange changeOrder = (IChange) change;
             logger.log("Get Change as Admin:"+changeOrder);
@@ -70,16 +88,12 @@ public class Description implements ICustomAction{
                 row.setValue(ChangeConstants.ATT_AFFECTED_ITEMS_ITEM_DESCRIPTION,autoDescription);
                 logger.log(2,"描述設定成功.");
             }
+            logger.close();
         } catch (APIException e) {
             logger.log("Failure.");
             logger.log(e);
             logger.close();
-            return new ActionResult(ActionResult.STRING,"Failure");
         }
-        logger.close();
-        String result = errorCountDescription ==0?"程式執行成功": errorCountDescription +"筆item失敗，請檢查log檔";
-        errorCountDescription = 0;
-        return new ActionResult(ActionResult.STRING,result);
     }
 
     private String getAutoDescription(IItem item) throws APIException {

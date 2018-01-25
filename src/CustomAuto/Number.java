@@ -29,6 +29,27 @@ public class Number implements ICustomAction{
     private static LogIt logger;
     private IAgileSession admin;
     private static int errorCountNumber;
+    private IChange changeOrder;
+
+    public Number(){
+        try {
+            Ini ini = new Ini("C:/Agile/Config.ini");
+            EXCEL_FILE = ini.getValue("File Location",
+                    "EXCEL_FILE_PATH_NUMBER");
+            logger = new LogIt("CustomAutoNumber");
+            logger.setLogFile(FILE_PATH);
+            admin = getAgileSession(ini,"AgileAP");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public int getErrorCount(){
+        return errorCountNumber;
+    }
+    public void resetCount() {
+        errorCountNumber = 0;
+    }
+
     public static void main(String[] args) throws IOException {
         InputStream ExcelFileToRead = new FileInputStream
                 (EXCEL_FILE);
@@ -86,21 +107,19 @@ public class Number implements ICustomAction{
         }
     }
     @Override
+    //If used as a PX by itself
     public ActionResult doAction(IAgileSession session,
                                  INode node,
                                  IDataObject change) {
+        action((IChange) change);
+        String result = errorCountNumber ==0?"程式執行成功": errorCountNumber +"筆item失敗，請檢查log檔";
+        resetCount();
+        return new ActionResult(ActionResult.STRING,result);
+    }
+    //If used externally
+    public void action(IChange change) {
         try {
-            Ini ini = new Ini("C:/Agile/Config.ini");
-            EXCEL_FILE = ini.getValue("File Location",
-                    "EXCEL_FILE_PATH_NUMBER");
-            logger = new LogIt("CustomAutoNumber");
-            logger.setLogFile(FILE_PATH);
-            admin = getAgileSession(ini,"AgileAP");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        try {
-            IChange changeOrder = (IChange) admin.getObject(IChange.OBJECT_TYPE,
+            changeOrder = (IChange) admin.getObject(IChange.OBJECT_TYPE,
                     change.getName());
             logger.log("Get Change as Admin:"+changeOrder);
             ITable affectedTable = getAffectedTable(changeOrder);
@@ -125,16 +144,11 @@ public class Number implements ICustomAction{
                 item.setValue(ItemConstants.ATT_TITLE_BLOCK_NUMBER,autoNumber);
                 logger.log(2,"流水號設定成功.");
             }
+            logger.close();
         } catch (APIException e) {
             logger.log("Failure.");
             logger.log(e);
-            logger.close();
-            return new ActionResult(ActionResult.STRING,"Failure");
         }
-        logger.close();
-        String result = errorCountNumber ==0?"程式執行成功": errorCountNumber +"筆item失敗，請檢查log檔";
-        errorCountNumber=0;
-        return new ActionResult(ActionResult.STRING,result);
     }
 
     private String getAutoNumber(IItem item) throws APIException {
