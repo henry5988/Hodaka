@@ -12,13 +12,14 @@ public class DescriptionAndNumber implements ICustomAction {
     public ActionResult doAction(IAgileSession iAgileSession, INode iNode, IDataObject change) {
         IChange changeOrder = (IChange) change;
         Description description = new Description();
-        Number number = new Number();
+        if(!description.statusInConfig((IChange) change))return new ActionResult(ActionResult.STRING,"Config檔未指定此站別為可執行站別！");
         description.action(changeOrder);
+        Number number = new Number();
         number.action(changeOrder);
         int errorCount = description.getErrorCount() + number.getErrorCount();
         description.resetCount();
         number.resetCount();
-        String result = errorCount ==0?"程式執行成功": "執行自動編碼/描述總共有"+errorCount +"筆物件失敗，請檢查log檔";
+        String result = errorCount ==0?"程式執行成功": "執行自動編碼/描述總共有"+errorCount +"筆條件失敗，請檢查log檔";
         return new ActionResult(ActionResult.STRING,result);
     }
 }

@@ -23,6 +23,7 @@ import static common.Utils.getAgileSession;
 
 public class Description implements ICustomAction{
     static String EXCEL_FILE;
+    private Ini ini;
     private String FILE_PATH = "C:/Agile/Log/AutoDescription"+new
             SimpleDateFormat("yyyyMMdd_HHmm").format(Calendar.getInstance().getTime())+".txt";
     private static LogIt logger;
@@ -32,7 +33,7 @@ public class Description implements ICustomAction{
 
     public Description(){
         try {
-            Ini ini = new Ini("C:/Agile/Config.ini");
+            ini = new Ini("C:/Agile/Config.ini");
             EXCEL_FILE = ini.getValue("File Location",
                     "EXCEL_FILE_PATH_DESCRIPTION");
             logger = new LogIt("CustomAutoDescription");
@@ -49,11 +50,27 @@ public class Description implements ICustomAction{
     public void resetCount() {
         errorCountDescription = 0;
     }
+    boolean statusInConfig(IChange change) {
+        try{
+            String currentStatus = change.getStatus().toString();
+            final String[] availableStatus = ini.getValue("Workflow","Status").split(",");
+            for(String status:availableStatus){
+                if(status.replaceAll(" ","").equals(currentStatus.replaceAll(" ","")))
+                    return true;
+            }
+        }catch(APIException e){
+            logger.log(e);
+            logger.close();
+            return false;
+        }
+        return false;
+    }
 
     @Override
     public ActionResult doAction(IAgileSession session,
                                  INode node,
                                  IDataObject change) {
+        if(!statusInConfig((IChange) change))return new ActionResult(ActionResult.STRING,"Config檔未指定此站別為可執行站別！");
         action((IChange) change);
         String result = errorCountDescription ==0?"程式執行成功": errorCountDescription +"筆item失敗，請檢查log檔";
         resetCount();
