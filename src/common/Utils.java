@@ -2,6 +2,7 @@ package common;
 
 import com.agile.api.*;
 import william.util.Ini;
+import william.util.LogIt;
 
 import java.util.HashMap;
 
@@ -45,7 +46,7 @@ public class Utils {
             throws APIException{
         IChange change;
         change = (IChange) session.getObject(IChange.OBJECT_TYPE,changeNum);
-        System.out.println("GET ECO CHANGE: "+change.getName());
+//        System.out.println("GET ECO CHANGE: "+change.getName());
         return change;
     }
 
@@ -78,24 +79,44 @@ public class Utils {
         return table;
     }
 
-    private void resetStatus(IChange change, IUser user)
-            throws APIException {
-        // Check if the user can change status - 以admin的身份應該不會有問題的。
-        if(user.hasPrivilege(UserConstants.PRIV_CHANGESTATUS, change)) {
-            IStatus currentStatus = change.getStatus();
-            IWorkflow wf = change.getWorkflow();
-            for(int i = 0; i<wf.getStates().length;i++){
-                if (currentStatus.equals(wf.getStates()[i])) {
-                    IStatus previousStatus = change.getWorkflow().getStates()[i-1];
-                    change.changeStatus(previousStatus, false, "", false, false, null, null, null, false);
-                    break;
+    public static void resetStatus(IChange change, IAgileSession session, LogIt logger) {
+        IUser user = null;
+        try {
+            user = session.getCurrentUser();
+        } catch (APIException e) {
+            e.printStackTrace();
+        }
+        try {
+            if(user.hasPrivilege(UserConstants.PRIV_CHANGESTATUS, change)) {
+                IChange changeOrder = (IChange) session.getObject(IChange.OBJECT_TYPE,change.getName());
+                IStatus currentStatus = changeOrder.getStatus();
+                IWorkflow wf = changeOrder.getWorkflow();
+                for(int i = 0; i<wf.getStates().length;i++){
+                    if (currentStatus.equals(wf.getStates()[i])) {
+                        IStatus nextStatus = changeOrder.getWorkflow().getStates()
+                                [i-1];
+                        if(i==0){
+                            logger.log("退站失敗");
+                            return;
+                        }
+                        changeOrder.changeStatus(nextStatus, false, "", false,
+                                false, null, null, null,  false);
+                        return;
+                    }
                 }
             }
-
-
-        } else {
-            System.out.println("Insufficient privileges to change status.");
+        } catch (APIException e) {
+            logger.log("退站出錯");
         }
+    }
+    /*
+        Get agile list
+     */
+    public static IAdminList getAgileList(IAgileSession session,String listName) throws APIException {
+        IAdmin admin = session.getAdminInstance();
+        IListLibrary listLib = admin.getListLibrary();
+        IAdminList adminList = listLib.getAdminList(listName);
+        return adminList;
     }
 
     public static IAgileSession getAgileSession(Ini ini, String target) {
