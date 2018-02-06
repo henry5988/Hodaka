@@ -35,7 +35,22 @@ public class BOMLogicPX1222018 implements IEventAction {
 
         problem = false;
         IWFChangeStatusEventInfo info = (IWFChangeStatusEventInfo) event;
-
+      //C26單如果是申請單位如果是生管課，於第三站執行邏輯檢查
+      //如果在第一站且申請單位=生管課，跳開
+        try {
+        	IChange changeOrder = (IChange) info.getDataObject();
+			if(changeOrder.getValue(ChangeConstants.ATT_COVER_PAGE_CHANGE_TYPE).toString().equals("C26-配方建置申請單")) {
+				String status = changeOrder.getValue(ChangeConstants.ATT_COVER_PAGE_STATUS).toString();
+				if("申請人".equals(status)||"直屬主管".equals(status)) {
+					String AssignPart = changeOrder.getValue(ChangeConstants.ATT_PAGE_TWO_LIST11).toString();
+					if("生管課".equals(AssignPart)) return new EventActionResult(event, new ActionResult
+	                        (ActionResult.STRING, "不執行檢查"));
+				}
+			}
+		} catch (APIException e) {
+			e.printStackTrace();
+		}
+        
         try {
             IChange changeOrder = (IChange) info.getDataObject();
 

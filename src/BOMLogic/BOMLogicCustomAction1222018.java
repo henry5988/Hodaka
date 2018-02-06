@@ -9,7 +9,6 @@ import william.util.LogIt;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Iterator;
 
 
@@ -26,6 +25,21 @@ public class BOMLogicCustomAction1222018 implements ICustomAction {
 
     @Override
     public ActionResult doAction(IAgileSession session, INode actionNode, IDataObject obj) {
+    	IChange changeOrder = (IChange) obj;
+    	//C26單如果是申請單位如果是生管課，於第三站執行邏輯檢查
+    	//如果在第一站且申請單位=生管課，跳開
+    	try {
+			if(changeOrder.getValue(ChangeConstants.ATT_COVER_PAGE_CHANGE_TYPE).toString().equals("C26-配方建置申請單")) {
+				String status = changeOrder.getValue(ChangeConstants.ATT_COVER_PAGE_STATUS).toString();
+				if("申請人".equals(status)||"直屬主管".equals(status)) {
+					String AssignPart = changeOrder.getValue(ChangeConstants.ATT_PAGE_TWO_LIST11).toString();
+					if("生管課".equals(AssignPart))return new ActionResult(ActionResult.STRING,"不執行檢查");
+				}
+			}
+		} catch (APIException e) {
+			e.printStackTrace();
+		}
+    	
         try {
             logger = new LogIt("BomLogicCheck");
             logger.setLogFile(FILE_PATH);
@@ -39,7 +53,6 @@ public class BOMLogicCustomAction1222018 implements ICustomAction {
 
 
         try {
-            IChange changeOrder = (IChange) obj;
             logger.log("GetChange: " + changeOrder.getName());
             ITable affTab = changeOrder.getTable(ChangeConstants.TABLE_AFFECTEDITEMS);
             logger.log("GetTable: " + affTab.getName());
