@@ -17,7 +17,7 @@ import static common.Utils.*;
   Adds all the value from TEXT01 to TEXT10
   If any of the value already exist in list, exit and reset to original status
  */
-public class addToListEvent implements IEventAction {
+public class addToListEvent implements ICustomAction {
 
     private Ini ini;
     private LogIt logger;
@@ -40,17 +40,17 @@ public class addToListEvent implements IEventAction {
 
     }
     @Override
-    public EventActionResult doAction(IAgileSession session, INode iNode, IEventInfo event) {
-        IWFChangeStatusEventInfo info = (IWFChangeStatusEventInfo) event;
+    public ActionResult doAction(IAgileSession session, INode iNode, IDataObject obj) {
+        
         IChange changeOrder;
         String result = "程式執行失敗";
         try {
-            changeOrder = (IChange) info.getDataObject();
+            changeOrder = (IChange) obj;
             changeOrder = getChange(admin,changeOrder.getName());
             logger.log("Get Change: "+changeOrder);
             logger.log("讀取TEXT01~TEXT10欄位...若任何值為重複或空值，程式將自動退出");
             ArrayList<String> listToAdd = getTextValues(changeOrder);
-            IAdminList adminList = getAgileList(session,"合金碼");
+            IAdminList adminList = getAgileList(session,"HODAKA_PARTS_ALL-PARTS_P3_合金碼 (共用)");
             boolean success = addToList(adminList,listToAdd);
             if(!success) {
                 logger.log("由於出錯，程式進不了下一站");
@@ -62,7 +62,7 @@ public class addToListEvent implements IEventAction {
             logger.log(e);
         }finally{
             logger.close();
-            return new EventActionResult(event, new ActionResult(ActionResult.STRING, result));
+            return new ActionResult(ActionResult.STRING, result);
         }
     }
 
