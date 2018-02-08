@@ -93,12 +93,7 @@ public class Utils {
                 IWorkflow wf = changeOrder.getWorkflow();
                 for(int i = 0; i<wf.getStates().length;i++){
                     if (currentStatus.equals(wf.getStates()[i])) {
-                        IStatus nextStatus = changeOrder.getWorkflow().getStates()
-                                [i-1];
-                        if(i==0){
-                            logger.log("退站失敗");
-                            return;
-                        }
+                        IStatus nextStatus = wf.getStates()[i-1];
                         changeOrder.changeStatus(nextStatus, false, "", false,
                                 false, null, null, null,  false);
                         return;
