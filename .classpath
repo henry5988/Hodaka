@@ -2,9 +2,9 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Users/Administrator/Desktop/Hodaka/AgileAPI.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Administrator/Desktop/Hodaka/anselm.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Administrator/Desktop/Hodaka/pxapi.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/poi"/>
+	<classpathentry kind="lib" path="AgileAPI.jar"/>
+	<classpathentry kind="lib" path="anselm.jar"/>
+	<classpathentry kind="lib" path="pxapi.jar"/>
 	<classpathentry kind="output" path="out/production/October 2017"/>
 </classpath>
