@@ -151,7 +151,7 @@ public class addToListEvent implements ICustomAction {
                 logger.log(1,"將"+listVal+"新增進list裏");
                 String apilistValue = listVal.trim().replaceAll("(\\W|^_)", "_");
                 target = agileList.addChild(listVal, apilistValue); // List的Child指到target
-				((IAgileList) target).setDescription("|"+listVal+"|"+listVal); // target是List的一部分，更改後即更新List
+				((IAgileList) target).setDescription(listVal); // target是List的一部分，更改後即更新List
 				((IAgileList) target).setValue(listVal);
 
             }else{
